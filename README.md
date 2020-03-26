@@ -5,7 +5,8 @@ ObsLn
 Introduction
 ------------
 
-Provides some of the basic functionality from ObsPy without many of the dependencies and size 
+Provides some of the basic functionality from ObsPy without many of the dependencies and size. For full ObsPy functionality please see the ObsPy project on GitHub [here](https://github.com/obspy)
+
 
 Building Docker Image
 ---------------------
