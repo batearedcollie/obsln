@@ -16,18 +16,19 @@ ObsLn's compatibility layer.
 Includes things to easy dealing with Py2/Py3 differences as well as making
 it work with various versions of our dependencies.
 """
-# from future.utils import PY2
-# 
-# import collections
+
+from obsln.core.futureutils import PY2
+
+import collections
 # import importlib
 # import io
 # import json
 import sys
 # import unittest
-# 
-# import numpy as np
-# 
-# # optional dependencies
+ 
+import numpy as np
+ 
+# optional dependencies
 # try:
 #     if PY2:
 #         import mock  # NOQA
@@ -50,19 +51,19 @@ import sys
 # else:
 #     string_types = (str,)  # NOQA
 # 
-# 
-# # Importing the ABCs from collections will no longer work with Python 3.8.
-# if PY2:
-#     collections_abc = collections  # NOQA
-# else:
-#     try:
-#         collections_abc = collections.abc  # NOQA
-#     except AttributeError:
-#         # Python 3.4 compat, see https://bugs.python.org/msg212284
-#         # some older Linux distribution (like Debian jessie) are still in LTS,
-#         # so be nice, this doesn't hurt and can be removed again later on
-#         collections_abc = importlib.import_module("collections.abc")  # NOQA
-# 
+ 
+# Importing the ABCs from collections will no longer work with Python 3.8.
+if PY2:
+    collections_abc = collections  # NOQA
+else:
+    try:
+        collections_abc = collections.abc  # NOQA
+    except AttributeError:
+        # Python 3.4 compat, see https://bugs.python.org/msg212284
+        # some older Linux distribution (like Debian jessie) are still in LTS,
+        # so be nice, this doesn't hurt and can be removed again later on
+        collections_abc = importlib.import_module("collections.abc")  # NOQA
+ 
 # 
 # if PY2:
 #     class RegExTestCase(unittest.TestCase):
@@ -145,43 +146,43 @@ import sys
 #         return False
 # 
 #     return isinstance(obj, io.BufferedIOBase)
-# 
-# 
-# def round_away(number):
-#     """
-#     Simple function that rounds a number to the nearest integer. If the number
-#     is halfway between two integers, it will round away from zero. Of course
-#     only works up machine precision. This should hopefully behave like the
-#     round() function in Python 2.
-# 
-#     This is potentially desired behavior in the trim functions but some more
-#     thought should be poured into it.
-# 
-#     The np.round() function rounds towards the even nearest even number in case
-#     of half-way splits.
-# 
-#     >>> round_away(2.5)
-#     3
-#     >>> round_away(-2.5)
-#     -3
-# 
-#     >>> round_away(10.5)
-#     11
-#     >>> round_away(-10.5)
-#     -11
-# 
-#     >>> round_away(11.0)
-#     11
-#     >>> round_away(-11.0)
-#     -11
-#     """
-#     floor = np.floor(number)
-#     ceil = np.ceil(number)
-#     if (floor != ceil) and (abs(number - floor) == abs(ceil - number)):
-#         return int(int(number) + int(np.sign(number)))
-#     else:
-#         return int(np.round(number))
-# 
+ 
+ 
+def round_away(number):
+    """
+    Simple function that rounds a number to the nearest integer. If the number
+    is halfway between two integers, it will round away from zero. Of course
+    only works up machine precision. This should hopefully behave like the
+    round() function in Python 2.
+ 
+    This is potentially desired behavior in the trim functions but some more
+    thought should be poured into it.
+ 
+    The np.round() function rounds towards the even nearest even number in case
+    of half-way splits.
+ 
+    >>> round_away(2.5)
+    3
+    >>> round_away(-2.5)
+    -3
+ 
+    >>> round_away(10.5)
+    11
+    >>> round_away(-10.5)
+    -11
+ 
+    >>> round_away(11.0)
+    11
+    >>> round_away(-11.0)
+    -11
+    """
+    floor = np.floor(number)
+    ceil = np.ceil(number)
+    if (floor != ceil) and (abs(number - floor) == abs(ceil - number)):
+        return int(int(number) + int(np.sign(number)))
+    else:
+        return int(np.round(number))
+ 
  
 if sys.version_info[0] < 3:
     def py3_round(number, ndigits=None):

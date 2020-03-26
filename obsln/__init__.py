@@ -14,3 +14,4 @@ ObsLn - Contains some of the basic functionality of ObsPy but without the size a
 '''
 
 from obsln.core.utcdatetime import UTCDateTime
+from obsln.core.trace import Trace

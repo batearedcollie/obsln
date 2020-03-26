@@ -48,6 +48,26 @@ class Test1(unittest.TestCase):
         
     
     # Trace 
+    def testTrace(self):
+        
+        #from obsln.core.trace import Stats
+        from obsln import Trace
+    
+        import numpy as np
+        tt = np.linspace(0,2,501)
+        ff = np.sin(2*np.pi*40*tt)
+        
+        trc = Trace(data=ff,header={"sampling_rate":250})
+        print("trc stats:\n",trc.stats)
+        print("\nTrace:\n",trc)
+        self.assertEqual(trc.__str__(),
+                         "... | 1970-01-01T00:00:00.000000Z - 1970-01-01T00:00:02.000000Z | 250.0 Hz, 501 samples"
+                         ,
+                         "Test fail")
+        
+        
+        
+    
     
     # Stream
     

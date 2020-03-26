@@ -5,12 +5,10 @@ ObsLn
 Introduction
 ------------
 
-Provides some of the basic functionality from ObsPy without the bloated dependencies and size 
+Provides some of the basic functionality from ObsPy without many of the dependencies and size 
 
 Building Docker Image
 ---------------------
-
-..
 
 	docker build -t obsln:latest .
 
@@ -18,6 +16,5 @@ Building Docker Image
 Running Examples in Docker Image
 --------------------------------
 
-..
 
 	docker run --entrypoint=/usr/bin/python3 obsln:latest -c "runtest.py"

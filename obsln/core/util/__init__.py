@@ -10,12 +10,17 @@
 # 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
-Replacements and substitutions for future.utils
+ObsLn  core utilities
 '''
-import sys
 
+from obsln.core.util.attribdict import AttribDict
 
-native_str=str
-
-PY3 = sys.version_info[0] == 3
-PY2 = sys.version_info[0] == 2
+from obsln.core.util.base import (create_empty_data_chunk,NUMPY_VERSION)
+# from obsln.core.util.base import (ALL_MODULES, DEFAULT_MODULES,
+#                                   NATIVE_BYTEORDER, NETWORK_MODULES,
+#                                   NamedTemporaryFile, _read_from_plugin,
+#                                   create_empty_data_chunk, get_example_file,
+#                                   get_script_dir_name, MATPLOTLIB_VERSION,
+#                                   SCIPY_VERSION, NUMPY_VERSION,
+#                                   BASEMAP_VERSION, CARTOPY_VERSION,
+#                                   PROJ4_VERSION, CatchAndAssertWarnings)
