@@ -75,31 +75,31 @@ else:
 #     class RegExTestCase(unittest.TestCase):
 #         pass
 # 
-# 
-# # NumPy does not offer the from_buffer method under Python 3 and instead
-# # relies on the built-in memoryview object.
-# if PY2:
-#     def from_buffer(data, dtype):
-#         # For compatibility with NumPy 1.4
-#         if isinstance(dtype, unicode):  # noqa
-#             dtype = str(dtype)
-#         if data:
-#             try:
-#                 data = data.encode()
-#             except Exception:
-#                 pass
-#             return np.frombuffer(data, dtype=dtype).copy()
-#         else:
-#             return np.array([], dtype=dtype)
-# else:
-#     def from_buffer(data, dtype):
-#         try:
-#             data = data.encode()
-#         except Exception:
-#             pass
-#         return np.array(memoryview(data)).view(dtype).copy()  # NOQA
-# 
-# 
+ 
+# NumPy does not offer the from_buffer method under Python 3 and instead
+# relies on the built-in memoryview object.
+if PY2:
+    def from_buffer(data, dtype):
+        # For compatibility with NumPy 1.4
+        if isinstance(dtype, unicode):  # noqa
+            dtype = str(dtype)
+        if data:
+            try:
+                data = data.encode()
+            except Exception:
+                pass
+            return np.frombuffer(data, dtype=dtype).copy()
+        else:
+            return np.array([], dtype=dtype)
+else:
+    def from_buffer(data, dtype):
+        try:
+            data = data.encode()
+        except Exception:
+            pass
+        return np.array(memoryview(data)).view(dtype).copy()  # NOQA
+ 
+ 
 # if PY2:
 #     from ConfigParser import SafeConfigParser as ConfigParser  # NOQA
 # else:

@@ -45,7 +45,7 @@ from obsln.core.util.misc import to_int_or_zero, buffered_load_entry_point
 
 
 # defining ObsPy modules currently used by runtests and the path function
-DEFAULT_MODULES=[]
+DEFAULT_MODULES=['core','io.segy']
 # DEFAULT_MODULES = ['clients.filesystem', 'core', 'db', 'geodetics', 'imaging',
 #                    'io.ah', 'io.arclink', 'io.ascii', 'io.cmtsolution',
 #                    'io.cnv', 'io.css', 'io.dmx', 'io.focmec', 'io.iaspei',
@@ -260,8 +260,17 @@ def _get_ordered_entry_points(group, subgroup=None, order_list=[]):
     """
     Gets a ordered dictionary of all available plug-ins of a group or subgroup.
     """
+    
+#     print("\n_get_ordered_entry_points")
+#     print(group)
+#     print(subgroup)
+#     print(order_list)
+    
     # get all available entry points
     ep_dict = _get_entry_points(group, subgroup)
+    
+#     print("ep_dict=",ep_dict)
+    
     # loop through official supported waveform plug-ins and add them to
     # ordered dict of entry points
     entry_points = OrderedDict()

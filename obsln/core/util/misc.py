@@ -210,8 +210,8 @@ def to_int_or_zero(value):
         return int(value)
     except ValueError:
         return 0
-# 
-# 
+ 
+ 
 # # import numpy loadtxt and check if ndmin parameter is available
 # try:
 #     from numpy import loadtxt
@@ -243,8 +243,8 @@ def to_int_or_zero(value):
 #             raise
 #         # ensures that an array is returned
 #         return np.atleast_1d(data)
-# 
-# 
+ 
+ 
 # def get_untracked_files_from_git():
 #     """
 #     Tries to return a list of files (absolute paths) that are untracked by git
@@ -274,8 +274,8 @@ def to_int_or_zero(value):
 #     except (OSError, CalledProcessError):
 #         return None
 #     return files
-# 
-# 
+ 
+ 
 # if PY2:
 #     from cStringIO import StringIO as CaptureIO
 # else:
@@ -286,8 +286,8 @@ def to_int_or_zero(value):
 # 
 #         def getvalue(self):
 #             return self.buffer.getvalue().decode('utf-8')
-# 
-# 
+ 
+ 
 # @contextlib.contextmanager
 # def CatchOutput():  # NOQA
 #     """
@@ -343,8 +343,8 @@ def to_int_or_zero(value):
 # 
 #     if raised:
 #         raise SystemExit(out.stderr)
-# 
-# 
+ 
+ 
 # def _py36_windowsconsoleio_workaround():
 #     """
 #     This monkey patch prevents crashing Py3.6 under Windows while using
@@ -392,11 +392,11 @@ def to_int_or_zero(value):
 #     sys.__stdin__ = sys.stdin = _reopen_stdio(sys.stdin, 'rb')
 #     sys.__stdout__ = sys.stdout = _reopen_stdio(sys.stdout, 'wb')
 #     sys.__stderr__ = sys.stderr = _reopen_stdio(sys.stderr, 'wb')
-# 
-# 
+ 
+ 
 # _py36_windowsconsoleio_workaround()
-# 
-# 
+ 
+ 
 # @contextlib.contextmanager
 # def SuppressOutput():  # noqa
 #     """
@@ -426,8 +426,8 @@ def to_int_or_zero(value):
 #     # reset to original stdout/stderr
 #     sys.stdout = sys.__stdout__
 #     sys.stderr = sys.__stderr__
-# 
-# 
+ 
+ 
 # @contextlib.contextmanager
 # def TemporaryWorkingDirectory():  # noqa --> this name is IMHO ok for a CM
 #     """
@@ -452,8 +452,8 @@ def to_int_or_zero(value):
 #         # /20718605/job/0vuja1b95rv5a0s2).
 #         except Exception as e:
 #             warnings.warn(e.__repr__())
-# 
-# 
+ 
+ 
 # def factorize_int(x):
 #     """
 #     Calculate prime factorization of integer.
@@ -478,8 +478,8 @@ def to_int_or_zero(value):
 #     if num > 1:
 #         factors.append(int(num))
 #     return factors
-# 
-# 
+ 
+ 
 def get_window_times(starttime, endtime, window_length, step, offset,
                      include_partial_windows):
     """
@@ -723,8 +723,8 @@ def buffered_load_entry_point(dist, group, name):
 #                         yield out
 # 
 #     return func(obj)
-# 
-# 
+ 
+ 
 # def _yield_resource_id_parent_attr(obj):
 #     """
 #     Specialized form of _yield_obj_parent_attr for getting ResourceIdentifiers.
@@ -758,8 +758,8 @@ def buffered_load_entry_point(dist, group, name):
 #                         yield out
 # 
 #     return func(obj)
-# 
-# 
+ 
+ 
 # def _seed_id_map(
 #         inventory=None, user_id_map=None, key='{sta.code}',
 #         seed_factory='{net.code}.{{}}.{cha.location_code}.{cha.code:.2}{{}}'):
@@ -779,8 +779,8 @@ def buffered_load_entry_point(dist, group, name):
 #     if user_id_map is not None:
 #         id_map.update(user_id_map)
 #     return id_map
-# 
-# 
+ 
+ 
 # if __name__ == '__main__':
 #     import doctest
 #     doctest.testmod(exclude_empty=True)

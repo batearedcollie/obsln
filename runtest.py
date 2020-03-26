@@ -71,32 +71,64 @@ class Test1(unittest.TestCase):
 #                          "Test fail")
 #         
     
-    def testStream(self):
+#     def testStream(self):
+#         
+#         print("\n******************\ntestStream\n******************\n")
+#         
+#         from obsln import Stream
+#         from obsln import Trace
+#         import numpy as np
+#                 
+#         st = Stream()
+#         for ii in range(0,10):
+# 
+#             tt = np.linspace(0,2,501)
+#             ff = np.sin(2*np.pi*40*tt)*(ii+1)
+#             trc = Trace(data=ff,header={"sampling_rate":250,"station":"stn"+str(ii)})
+#             
+#             st.append(trc)
+#         
+#         # Print
+#         print(st)
+#     
+#         # itterate
+#         print("\nTraces:\n")
+#         for tr in st: print(tr)
+#     
+#         print("\nGaps:\n")
+#         st.print_gaps()
+#         
+#         # TODO - write stream using write() method
         
-        print("\n******************\ntestStream\n******************\n")
+    def testSEGY(self):
         
+        print("\n******************\ntestSEGY\n******************\n")
+        
+
+        
+        # Make some data
         from obsln import Stream
         from obsln import Trace
         import numpy as np
-                
+                 
         st = Stream()
         for ii in range(0,10):
-
             tt = np.linspace(0,2,501)
             ff = np.sin(2*np.pi*40*tt)*(ii+1)
             trc = Trace(data=ff,header={"sampling_rate":250,"station":"stn"+str(ii)})
-            
             st.append(trc)
-        
-        # Print
-        print(st)
-    
-        # itterate
-        print("\nTraces:\n")
-        for tr in st: print(tr)
-    
-        print("\nGaps:\n")
-        st.print_gaps()
+
+        ## TODO start here 
+        ##
+        ##  - not loading 
+        ##
+        ##    ./build/lib.linux-x86_64-3.6/libsegy_Linux_64bit_py36.cpython-36m-x86_64-linux-gnu.so
+        ##    /usr/local/lib/python3.6/dist-packages/obsln-0.0.0-py3.6-linux-x86_64.egg/libsegy_Linux_64bit_py36.cpython-36m-x86_64-linux-gnu.so
+        ##
+
+        # Write as SEGY
+        from obsln.io.segy.core import _write_segy
+        _write_segy(st,"test.sgy")
     
     # Stream
     

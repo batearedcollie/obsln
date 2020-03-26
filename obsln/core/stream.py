@@ -17,7 +17,7 @@ Module for handling Stream objects.
 # from future.builtins import *  # NOQA
 # from future.utils import PY3, native_str
 
-from obsln.core.futureutils import native_str
+from obsln.core.futureutils import native_str,PY3
  
 import collections
 import copy
@@ -41,7 +41,7 @@ from obsln.core.util.decorator import (map_example_filename)
 #,
 #                                        raise_if_masked, uncompress_file)
 
-from obsln.core.util.misc import get_window_times
+from obsln.core.util.misc import get_window_times,buffered_load_entry_point
 # from obspy.core.util.misc import get_window_times, buffered_load_entry_point
 # from obspy.core.util.obspy_types import ObsPyException
  
@@ -1399,78 +1399,82 @@ class Stream(object):
             self.traces.sort(key=lambda x: x.stats[_i], reverse=reverse)
         return self
 
-#TODO - implement this...
+    def write(self, filename, format=None, **kwargs):
+        """
+        Save stream into a file.
  
-#     def write(self, filename, format=None, **kwargs):
-#         """
-#         Save stream into a file.
-# 
-#         :type filename: str
-#         :param filename: The name of the file to write.
-#         :type format: str, optional
-#         :param format: The file format to use (e.g. ``"MSEED"``). See
-#             the `Supported Formats`_ section below for a list of supported
-#             formats. If format is set to ``None`` it will be deduced from
-#             file extension, whenever possible.
-#         :param kwargs: Additional keyword arguments passed to the underlying
-#             waveform writer method.
-# 
-#         .. rubric:: Example
-# 
-#         >>> from obspy import read
-#         >>> st = read()  # doctest: +SKIP
-#         >>> st.write("example.mseed", format="MSEED")  # doctest: +SKIP
-# 
-#         The ``format`` argument can be omitted, and the file format will be
-#         deduced from file extension, whenever possible.
-# 
-#         >>> st.write("example.mseed")  # doctest: +SKIP
-# 
-#         Writing single traces into files with meaningful filenames can be done
-#         e.g. using trace.id
-# 
-#         >>> for tr in st: #doctest: +SKIP
-#         ...     tr.write(tr.id + ".MSEED", format="MSEED") #doctest: +SKIP
-# 
-#         .. rubric:: _`Supported Formats`
-# 
-#         Additional ObsPy modules extend the parameters of the
-#         :meth:`~obspy.core.stream.Stream.write` method. The following
-#         table summarizes all known formats currently available for ObsPy.
-# 
-#         Please refer to the `Linked Function Call`_ of each module for any
-#         extra options available.
-# 
-#         %s
-#         """
-#         if not self.traces:
-#             msg = 'Can not write empty stream to file.'
-#             raise ObsPyException(msg)
-# 
-#         # Check all traces for masked arrays and raise exception.
-#         for trace in self.traces:
-#             if isinstance(trace.data, np.ma.masked_array):
-#                 msg = 'Masked array writing is not supported. You can use ' + \
-#                       'np.array.filled() to convert the masked array to a ' + \
-#                       'normal array.'
-#                 raise NotImplementedError(msg)
-#         if format is None:
-#             # try to guess format from file extension
-#             _, format = os.path.splitext(filename)
-#             format = format[1:]
-#         format = format.upper()
-#         try:
-#             # get format specific entry point
-#             format_ep = ENTRY_POINTS['waveform_write'][format]
-#             # search writeFormat method for given entry point
-#             write_format = buffered_load_entry_point(
-#                 format_ep.dist.key,
-#                 'obspy.plugin.waveform.%s' % (format_ep.name), 'writeFormat')
-#         except (IndexError, ImportError, KeyError):
-#             msg = "Writing format \"%s\" is not supported. Supported types: %s"
-#             raise ValueError(msg % (format,
-#                                     ', '.join(ENTRY_POINTS['waveform_write'])))
-#         write_format(self, filename, **kwargs)
+        :type filename: str
+        :param filename: The name of the file to write.
+        :type format: str, optional
+        :param format: The file format to use (e.g. ``"MSEED"``). See
+            the `Supported Formats`_ section below for a list of supported
+            formats. If format is set to ``None`` it will be deduced from
+            file extension, whenever possible.
+        :param kwargs: Additional keyword arguments passed to the underlying
+            waveform writer method.
+ 
+        .. rubric:: Example
+ 
+        >>> from obspy import read
+        >>> st = read()  # doctest: +SKIP
+        >>> st.write("example.mseed", format="MSEED")  # doctest: +SKIP
+ 
+        The ``format`` argument can be omitted, and the file format will be
+        deduced from file extension, whenever possible.
+ 
+        >>> st.write("example.mseed")  # doctest: +SKIP
+ 
+        Writing single traces into files with meaningful filenames can be done
+        e.g. using trace.id
+ 
+        >>> for tr in st: #doctest: +SKIP
+        ...     tr.write(tr.id + ".MSEED", format="MSEED") #doctest: +SKIP
+ 
+        .. rubric:: _`Supported Formats`
+ 
+        Additional ObsPy modules extend the parameters of the
+        :meth:`~obspy.core.stream.Stream.write` method. The following
+        table summarizes all known formats currently available for ObsPy.
+ 
+        Please refer to the `Linked Function Call`_ of each module for any
+        extra options available.
+ 
+        %s
+        """
+        if not self.traces:
+            msg = 'Can not write empty stream to file.'
+            raise Exception(msg)
+ 
+        # Check all traces for masked arrays and raise exception.
+        for trace in self.traces:
+            if isinstance(trace.data, np.ma.masked_array):
+                msg = 'Masked array writing is not supported. You can use ' + \
+                      'np.array.filled() to convert the masked array to a ' + \
+                      'normal array.'
+                raise NotImplementedError(msg)
+        if format is None:
+            # try to guess format from file extension
+            _, format = os.path.splitext(filename)
+            format = format[1:]
+        format = format.upper()
+        
+        print("Here format=",format)
+        
+        print("ENTRY_POINTS['waveform_write']=",ENTRY_POINTS['waveform_write'])
+        
+        try:
+            # get format specific entry point
+            format_ep = ENTRY_POINTS['waveform_write'][format]
+                        
+            # search writeFormat method for given entry point
+            write_format = buffered_load_entry_point(
+                format_ep.dist.key,
+                'obspy.plugin.waveform.%s' % (format_ep.name), 'writeFormat')
+        except (IndexError, ImportError, KeyError):
+            msg = "Writing format \"%s\" is not supported. Supported types: %s"
+            raise ValueError(msg % (format,
+                                    ', '.join(ENTRY_POINTS['waveform_write'])))
+        write_format(self, filename, **kwargs)
  
     def trim(self, starttime=None, endtime=None, pad=False,
              nearest_sample=True, fill_value=None):

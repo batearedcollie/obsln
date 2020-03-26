@@ -1,6 +1,10 @@
 .git
+.gitignore
 .dockerignore
 .project
 .pydevproject
 License.txt
 README.md
+build
+dist
+**.egg-info
