@@ -27,25 +27,25 @@ import numpy as np
 # import importlib
 # import inspect
 # import io
-# import os
+import os
 # import re
 # import sys
 # import tempfile
 # import unicodedata
 # import warnings
-# from collections import OrderedDict
-# 
+from collections import OrderedDict
+ 
 # import numpy as np
 import pkg_resources
 # import requests
 # from future.utils import native_str
-# from pkg_resources import get_entry_info, iter_entry_points
+from pkg_resources import get_entry_info, iter_entry_points
  
-from obsln.core.util.misc import to_int_or_zero
-# buffered_load_entry_point
+from obsln.core.util.misc import to_int_or_zero, buffered_load_entry_point
 
 
-# # defining ObsPy modules currently used by runtests and the path function
+# defining ObsPy modules currently used by runtests and the path function
+DEFAULT_MODULES=[]
 # DEFAULT_MODULES = ['clients.filesystem', 'core', 'db', 'geodetics', 'imaging',
 #                    'io.ah', 'io.arclink', 'io.ascii', 'io.cmtsolution',
 #                    'io.cnv', 'io.css', 'io.dmx', 'io.focmec', 'io.iaspei',
@@ -56,19 +56,21 @@ from obsln.core.util.misc import to_int_or_zero
 #                    'io.sh', 'io.shapefile', 'io.seiscomp', 'io.stationtxt',
 #                    'io.stationxml', 'io.wav', 'io.win', 'io.xseed', 'io.y',
 #                    'io.zmap', 'realtime', 'scripts', 'signal', 'taup']
+NETWORK_MODULES=[]
 # NETWORK_MODULES = ['clients.arclink', 'clients.earthworm', 'clients.fdsn',
 #                    'clients.iris', 'clients.neic', 'clients.nrl',
 #                    'clients.seedlink', 'clients.seishub', 'clients.syngine']
-# ALL_MODULES = DEFAULT_MODULES + NETWORK_MODULES
-# 
-# # default order of automatic format detection
-# WAVEFORM_PREFERRED_ORDER = ['MSEED', 'SAC', 'GSE2', 'SEISAN', 'SACXY', 'GSE1',
-#                             'Q', 'SH_ASC', 'SLIST', 'TSPAIR', 'Y', 'PICKLE',
-#                             'SEGY', 'SU', 'SEG2', 'WAV', 'WIN', 'CSS',
-#                             'NNSA_KB_CORE', 'AH', 'PDAS', 'KINEMETRICS_EVT',
-#                             'GCF', 'DMX']
-# EVENT_PREFERRED_ORDER = ['QUAKEML', 'NLLOC_HYP']
-# INVENTORY_PREFERRED_ORDER = ['STATIONXML', 'SEED', 'RESP']
+ALL_MODULES = DEFAULT_MODULES + NETWORK_MODULES
+ 
+# default order of automatic format detection
+WAVEFORM_PREFERRED_ORDER = ['MSEED', 'SAC', 'GSE2', 'SEISAN', 'SACXY', 'GSE1',
+                            'Q', 'SH_ASC', 'SLIST', 'TSPAIR', 'Y', 'PICKLE',
+                            'SEGY', 'SU', 'SEG2', 'WAV', 'WIN', 'CSS',
+                            'NNSA_KB_CORE', 'AH', 'PDAS', 'KINEMETRICS_EVT',
+                            'GCF', 'DMX']
+EVENT_PREFERRED_ORDER = ['QUAKEML', 'NLLOC_HYP']
+INVENTORY_PREFERRED_ORDER = ['STATIONXML', 'SEED', 'RESP']
+
 # # waveform plugins accepting a byteorder keyword
 # WAVEFORM_ACCEPT_BYTEORDER = ['MSEED', 'Q', 'SAC', 'SEGY', 'SU']
 # 
@@ -189,157 +191,157 @@ def create_empty_data_chunk(delta, dtype, fill_value=None):
     return temp
 
 
-# def get_example_file(filename):
-#     """
-#     Function to find the absolute path of a data file
-# 
-#     The ObsPy modules are installed to a custom installation directory.
-#     That is the path cannot be predicted. This functions searches for all
-#     installed ObsPy modules and checks whether the file is in any of
-#     the "tests/data/" or "data/" subdirectories.
-# 
-#     :param filename: A test file name to which the path should be returned.
-#     :return: Full path to file.
-# 
-#     .. rubric:: Example
-# 
-#     >>> get_example_file('slist.ascii')  # doctest: +SKIP
-#     /custom/path/to/obspy/io/ascii/tests/data/slist.ascii
-# 
-#     >>> get_example_file('does.not.exists')  # doctest: +ELLIPSIS
-#     Traceback (most recent call last):
-#     ...
-#     OSError: Could not find file does.not.exists ...
-#     """
-#     for module in ALL_MODULES:
-#         try:
-#             mod = __import__("obspy.%s" % module,
-#                              fromlist=[native_str("obspy")])
-#         except ImportError:
-#             continue
-#         file_ = os.path.join(mod.__path__[0], "tests", "data", filename)
-#         if os.path.isfile(file_):
-#             return file_
-#         file_ = os.path.join(mod.__path__[0], "data", filename)
-#         if os.path.isfile(file_):
-#             return file_
-#     msg = ("Could not find file %s in tests/data or data "
-#            "directory of ObsPy modules") % filename
-#     raise OSError(msg)
+def get_example_file(filename):
+    """
+    Function to find the absolute path of a data file
+ 
+    The ObsPy modules are installed to a custom installation directory.
+    That is the path cannot be predicted. This functions searches for all
+    installed ObsPy modules and checks whether the file is in any of
+    the "tests/data/" or "data/" subdirectories.
+ 
+    :param filename: A test file name to which the path should be returned.
+    :return: Full path to file.
+ 
+    .. rubric:: Example
+ 
+    >>> get_example_file('slist.ascii')  # doctest: +SKIP
+    /custom/path/to/obspy/io/ascii/tests/data/slist.ascii
+ 
+    >>> get_example_file('does.not.exists')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    OSError: Could not find file does.not.exists ...
+    """
+    for module in ALL_MODULES:
+        try:
+            mod = __import__("obspy.%s" % module,
+                             fromlist=[native_str("obspy")])
+        except ImportError:
+            continue
+        file_ = os.path.join(mod.__path__[0], "tests", "data", filename)
+        if os.path.isfile(file_):
+            return file_
+        file_ = os.path.join(mod.__path__[0], "data", filename)
+        if os.path.isfile(file_):
+            return file_
+    msg = ("Could not find file %s in tests/data or data "
+           "directory of ObsPy modules") % filename
+    raise OSError(msg)
 
 
-# def _get_entry_points(group, subgroup=None):
-#     """
-#     Gets a dictionary of all available plug-ins of a group or subgroup.
-# 
-#     :type group: str
-#     :param group: Group name.
-#     :type subgroup: str, optional
-#     :param subgroup: Subgroup name (defaults to None).
-#     :rtype: dict
-#     :returns: Dictionary of entry points of each plug-in.
-# 
-#     .. rubric:: Example
-# 
-#     >>> _get_entry_points('obspy.plugin.waveform')  # doctest: +ELLIPSIS
-#     {...'SLIST': EntryPoint.parse('SLIST = obspy.io.ascii.core')...}
-#     """
-#     features = {}
-#     for ep in iter_entry_points(group):
-#         if subgroup:
-#             if list(iter_entry_points(group + '.' + ep.name, subgroup)):
-#                 features[ep.name] = ep
-#         else:
-#             features[ep.name] = ep
-#     return features
+def _get_entry_points(group, subgroup=None):
+    """
+    Gets a dictionary of all available plug-ins of a group or subgroup.
+ 
+    :type group: str
+    :param group: Group name.
+    :type subgroup: str, optional
+    :param subgroup: Subgroup name (defaults to None).
+    :rtype: dict
+    :returns: Dictionary of entry points of each plug-in.
+ 
+    .. rubric:: Example
+ 
+    >>> _get_entry_points('obspy.plugin.waveform')  # doctest: +ELLIPSIS
+    {...'SLIST': EntryPoint.parse('SLIST = obspy.io.ascii.core')...}
+    """
+    features = {}
+    for ep in iter_entry_points(group):
+        if subgroup:
+            if list(iter_entry_points(group + '.' + ep.name, subgroup)):
+                features[ep.name] = ep
+        else:
+            features[ep.name] = ep
+    return features
 
 
-# def _get_ordered_entry_points(group, subgroup=None, order_list=[]):
-#     """
-#     Gets a ordered dictionary of all available plug-ins of a group or subgroup.
-#     """
-#     # get all available entry points
-#     ep_dict = _get_entry_points(group, subgroup)
-#     # loop through official supported waveform plug-ins and add them to
-#     # ordered dict of entry points
-#     entry_points = OrderedDict()
-#     for name in order_list:
-#         try:
-#             entry_points[name] = ep_dict.pop(name)
-#         except Exception:
-#             # skip plug-ins which are not installed
-#             continue
-#     # extend entry points with any left over waveform plug-ins
-#     entry_points.update(ep_dict)
-#     return entry_points
+def _get_ordered_entry_points(group, subgroup=None, order_list=[]):
+    """
+    Gets a ordered dictionary of all available plug-ins of a group or subgroup.
+    """
+    # get all available entry points
+    ep_dict = _get_entry_points(group, subgroup)
+    # loop through official supported waveform plug-ins and add them to
+    # ordered dict of entry points
+    entry_points = OrderedDict()
+    for name in order_list:
+        try:
+            entry_points[name] = ep_dict.pop(name)
+        except Exception:
+            # skip plug-ins which are not installed
+            continue
+    # extend entry points with any left over waveform plug-ins
+    entry_points.update(ep_dict)
+    return entry_points
 
 
-# ENTRY_POINTS = {
-#     'trigger': _get_entry_points('obspy.plugin.trigger'),
-#     'filter': _get_entry_points('obspy.plugin.filter'),
-#     'rotate': _get_entry_points('obspy.plugin.rotate'),
-#     'detrend': _get_entry_points('obspy.plugin.detrend'),
-#     'interpolate': _get_entry_points('obspy.plugin.interpolate'),
-#     'integrate': _get_entry_points('obspy.plugin.integrate'),
-#     'differentiate': _get_entry_points('obspy.plugin.differentiate'),
-#     'waveform': _get_ordered_entry_points(
-#         'obspy.plugin.waveform', 'readFormat', WAVEFORM_PREFERRED_ORDER),
-#     'waveform_write': _get_ordered_entry_points(
-#         'obspy.plugin.waveform', 'writeFormat', WAVEFORM_PREFERRED_ORDER),
-#     'event': _get_ordered_entry_points('obspy.plugin.event', 'readFormat',
-#                                        EVENT_PREFERRED_ORDER),
-#     'event_write': _get_entry_points('obspy.plugin.event', 'writeFormat'),
-#     'taper': _get_entry_points('obspy.plugin.taper'),
-#     'inventory': _get_ordered_entry_points(
-#         'obspy.plugin.inventory', 'readFormat', INVENTORY_PREFERRED_ORDER),
-#     'inventory_write': _get_entry_points(
-#         'obspy.plugin.inventory', 'writeFormat'),
-# }
+ENTRY_POINTS = {
+    'trigger': _get_entry_points('obspy.plugin.trigger'),
+    'filter': _get_entry_points('obspy.plugin.filter'),
+    'rotate': _get_entry_points('obspy.plugin.rotate'),
+    'detrend': _get_entry_points('obspy.plugin.detrend'),
+    'interpolate': _get_entry_points('obspy.plugin.interpolate'),
+    'integrate': _get_entry_points('obspy.plugin.integrate'),
+    'differentiate': _get_entry_points('obspy.plugin.differentiate'),
+    'waveform': _get_ordered_entry_points(
+        'obspy.plugin.waveform', 'readFormat', WAVEFORM_PREFERRED_ORDER),
+    'waveform_write': _get_ordered_entry_points(
+        'obspy.plugin.waveform', 'writeFormat', WAVEFORM_PREFERRED_ORDER),
+    'event': _get_ordered_entry_points('obspy.plugin.event', 'readFormat',
+                                       EVENT_PREFERRED_ORDER),
+    'event_write': _get_entry_points('obspy.plugin.event', 'writeFormat'),
+    'taper': _get_entry_points('obspy.plugin.taper'),
+    'inventory': _get_ordered_entry_points(
+        'obspy.plugin.inventory', 'readFormat', INVENTORY_PREFERRED_ORDER),
+    'inventory_write': _get_entry_points(
+        'obspy.plugin.inventory', 'writeFormat'),
+}
 
 
-# def _get_function_from_entry_point(group, type):
-#     """
-#     A "automagic" function searching a given dict of entry points for a valid
-#     entry point and returns the function call. Otherwise it will raise a
-#     default error message.
-# 
-#     .. rubric:: Example
-# 
-#     >>> _get_function_from_entry_point(
-#     ...     'detrend', 'simple')  # doctest: +ELLIPSIS
-#     <function simple at 0x...>
-# 
-#     >>> _get_function_from_entry_point('detrend', 'XXX')  # doctest: +ELLIPSIS
-#     Traceback (most recent call last):
-#     ...
-#     ValueError: Detrend type "XXX" is not supported. Supported types: ...
-#     """
-#     ep_dict = ENTRY_POINTS[group]
-#     try:
-#         # get entry point
-#         if type in ep_dict:
-#             entry_point = ep_dict[type]
-#         else:
-#             # search using lower cases only
-#             entry_point = [v for k, v in ep_dict.items()
-#                            if k.lower() == type.lower()][0]
-#     except (KeyError, IndexError):
-#         # check if any entry points are available at all
-#         if not ep_dict:
-#             msg = "Your current ObsPy installation does not support " + \
-#                   "any %s functions. Please make sure " + \
-#                   "SciPy is installed properly."
-#             raise ImportError(msg % (group.capitalize()))
-#         # ok we have entry points, but specified function is not supported
-#         msg = "%s type \"%s\" is not supported. Supported types: %s"
-#         raise ValueError(msg % (group.capitalize(), type, ', '.join(ep_dict)))
-#     # import function point
-#     # any issue during import of entry point should be raised, so the user has
-#     # a chance to correct the problem
-#     func = buffered_load_entry_point(entry_point.dist.key,
-#                                      'obspy.plugin.%s' % (group),
-#                                      entry_point.name)
-#     return func
+def _get_function_from_entry_point(group, type):
+    """
+    A "automagic" function searching a given dict of entry points for a valid
+    entry point and returns the function call. Otherwise it will raise a
+    default error message.
+ 
+    .. rubric:: Example
+ 
+    >>> _get_function_from_entry_point(
+    ...     'detrend', 'simple')  # doctest: +ELLIPSIS
+    <function simple at 0x...>
+ 
+    >>> _get_function_from_entry_point('detrend', 'XXX')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: Detrend type "XXX" is not supported. Supported types: ...
+    """
+    ep_dict = ENTRY_POINTS[group]
+    try:
+        # get entry point
+        if type in ep_dict:
+            entry_point = ep_dict[type]
+        else:
+            # search using lower cases only
+            entry_point = [v for k, v in ep_dict.items()
+                           if k.lower() == type.lower()][0]
+    except (KeyError, IndexError):
+        # check if any entry points are available at all
+        if not ep_dict:
+            msg = "Your current ObsPy installation does not support " + \
+                  "any %s functions. Please make sure " + \
+                  "SciPy is installed properly."
+            raise ImportError(msg % (group.capitalize()))
+        # ok we have entry points, but specified function is not supported
+        msg = "%s type \"%s\" is not supported. Supported types: %s"
+        raise ValueError(msg % (group.capitalize(), type, ', '.join(ep_dict)))
+    # import function point
+    # any issue during import of entry point should be raised, so the user has
+    # a chance to correct the problem
+    func = buffered_load_entry_point(entry_point.dist.key,
+                                     'obspy.plugin.%s' % (group),
+                                     entry_point.name)
+    return func
 
 
 def get_dependency_version(package_name, raw_string=False):

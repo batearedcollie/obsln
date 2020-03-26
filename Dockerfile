@@ -19,9 +19,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/  
 
 
-#ADD container-src/requirements.txt /
-#RUN python3 -m pip install --upgrade pip && \
-#	python3 -m pip install -r requirements.txt
+ADD requirements.txt /
+RUN python3 -m pip install --upgrade pip && \
+	python3 -m pip install -r requirements.txt
 
 
 # Build ObsLn

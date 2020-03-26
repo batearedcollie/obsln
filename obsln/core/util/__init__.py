@@ -16,6 +16,9 @@ ObsLn  core utilities
 from obsln.core.util.attribdict import AttribDict
 
 from obsln.core.util.base import (create_empty_data_chunk,NUMPY_VERSION)
+
+from obsln.core.util.base import (get_example_file)
+
 # from obsln.core.util.base import (ALL_MODULES, DEFAULT_MODULES,
 #                                   NATIVE_BYTEORDER, NETWORK_MODULES,
 #                                   NamedTemporaryFile, _read_from_plugin,

@@ -20,52 +20,52 @@ Misc functinoality
 # import contextlib
 # import inspect
 # import io
-# import itertools
+import itertools
 # import locale
 # import math
 # import os
 # import shutil
-# import sys
+import sys
 # import tempfile
 # import warnings
 # from subprocess import STDOUT, CalledProcessError, check_output
  
  
 import numpy as np
-# from pkg_resources import load_entry_point
-# 
-# WIN32 = sys.platform.startswith('win32')
-# 
-# # The following dictionary maps the first character of the channel_id to the
-# # lowest sampling rate this so called Band Code should be used for according
-# # to: SEED MANUAL p.124
-# # We use this e.g. in seishub.client.getWaveform to request two samples more on
-# # both start and end to cut to the samples that really are nearest to requested
-# # start/end time afterwards.
-# BAND_CODE = {'F': 1000.0,
-#              'G': 1000.0,
-#              'D': 250.0,
-#              'C': 250.0,
-#              'E': 80.0,
-#              'S': 10.0,
-#              'H': 80.0,
-#              'B': 10.0,
-#              'M': 1.0,
-#              'L': 1.0,
-#              'V': 0.1,
-#              'U': 0.01,
-#              'R': 0.0001,
-#              'P': 0.000001,
-#              'T': 0.0000001,
-#              'Q': 0.00000001}
-# 
-# # Dict that stores results from load entry points
-# _ENTRY_POINT_CACHE = {}
-# 
-# # The kwargs used by load_entry_point function
-# _LOAD_ENTRY_POINT_KEYS = ('dist', 'group', 'name')
-# 
-# 
+from pkg_resources import load_entry_point
+ 
+WIN32 = sys.platform.startswith('win32')
+ 
+# The following dictionary maps the first character of the channel_id to the
+# lowest sampling rate this so called Band Code should be used for according
+# to: SEED MANUAL p.124
+# We use this e.g. in seishub.client.getWaveform to request two samples more on
+# both start and end to cut to the samples that really are nearest to requested
+# start/end time afterwards.
+BAND_CODE = {'F': 1000.0,
+             'G': 1000.0,
+             'D': 250.0,
+             'C': 250.0,
+             'E': 80.0,
+             'S': 10.0,
+             'H': 80.0,
+             'B': 10.0,
+             'M': 1.0,
+             'L': 1.0,
+             'V': 0.1,
+             'U': 0.01,
+             'R': 0.0001,
+             'P': 0.000001,
+             'T': 0.0000001,
+             'Q': 0.00000001}
+  
+# Dict that stores results from load entry points
+_ENTRY_POINT_CACHE = {}
+ 
+# The kwargs used by load_entry_point function
+_LOAD_ENTRY_POINT_KEYS = ('dist', 'group', 'name')
+ 
+ 
 # def guess_delta(channel):
 #     """
 #     Estimate time delta in seconds between each sample from given channel name.
@@ -638,24 +638,24 @@ def get_window_times(starttime, endtime, window_length, step, offset,
 #         if total_size > max_size_in_mb_per_cache * 1024 * 1024:
 #             cache.clear()
 # 
-# 
-# def buffered_load_entry_point(dist, group, name):
-#     """
-#     Return `name` entry point of `group` for `dist` or raise ImportError
-#     :type dist: str
-#     :param dist: The name of the distribution containing the entry point.
-#     :type group: str
-#     :param group: The name of the group containing the entry point.
-#     :type name: str
-#     :param name: The name of the entry point.
-#     :return: The loaded entry point
-#     """
-#     hash_str = '/'.join([dist, group, name])
-#     if hash_str not in _ENTRY_POINT_CACHE:
-#         _ENTRY_POINT_CACHE[hash_str] = load_entry_point(dist, group, name)
-#     return _ENTRY_POINT_CACHE[hash_str]
-# 
-# 
+ 
+def buffered_load_entry_point(dist, group, name):
+    """
+    Return `name` entry point of `group` for `dist` or raise ImportError
+    :type dist: str
+    :param dist: The name of the distribution containing the entry point.
+    :type group: str
+    :param group: The name of the group containing the entry point.
+    :type name: str
+    :param name: The name of the entry point.
+    :return: The loaded entry point
+    """
+    hash_str = '/'.join([dist, group, name])
+    if hash_str not in _ENTRY_POINT_CACHE:
+        _ENTRY_POINT_CACHE[hash_str] = load_entry_point(dist, group, name)
+    return _ENTRY_POINT_CACHE[hash_str]
+ 
+ 
 # def _yield_obj_parent_attr(obj, cls=None, is_attr=None, has_attr=None):
 #     """
 #     Recurse an object, yield a tuple of object, parent, attr.
