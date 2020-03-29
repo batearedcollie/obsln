@@ -90,6 +90,19 @@ def _get_lib_name(lib, add_extension_suffix):
 
 
 def _load_cdll(name):
+    '''
+    Adding this function so it does not fail when runnign from source 
+    '''
+    
+    try:
+        return _load_cdll4Real(name,useBuild=False)
+    
+    except ImportError:
+        return _load_cdll4Real(name,useBuild=True)
+
+    
+
+def _load_cdll4Real(name,useBuild=False):
     """
     Helper function to load a shared library built during ObsPy installation
     with ctypes.
@@ -100,13 +113,20 @@ def _load_cdll(name):
     """
     # our custom defined part of the extension file name
     libname = _get_lib_name(name, add_extension_suffix=True)
-    libdir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
-                          'lib')
+    
+    if useBuild==True:
+        libdir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,os.pardir,
+                              'build/lib.linux-x86_64-3.6')    
+    else:
+        libdir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,'lib')        
+
     libpath = os.path.join(libdir, libname)
+    
     # resolve parent directory '../' for windows
     libpath = os.path.normpath(libpath)
     libpath = os.path.abspath(libpath)
     libpath = str(libpath)
+
     try:
         cdll = ctypes.CDLL(libpath)
     except Exception as e:

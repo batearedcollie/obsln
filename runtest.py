@@ -114,7 +114,7 @@ class Test1(unittest.TestCase):
         st = Stream()
         for ii in range(0,10):
             tt = np.linspace(0,2,501)
-            ff = np.sin(2*np.pi*40*tt)*(ii+1)
+            ff = np.sin(2*np.pi*40*tt,dtype=np.float32)*(ii+1)
             trc = Trace(data=ff,header={"sampling_rate":250,"station":"stn"+str(ii)})
             st.append(trc)
 

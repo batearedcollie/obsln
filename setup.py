@@ -260,7 +260,7 @@ def setupPackage():
 #                       "#egg=obspy=dev"),
 #         include_package_data=True,
 #         entry_points=ENTRY_POINTS,
-#         ext_package='obspy.lib',
+        ext_package='obsln.lib',
 #         cmdclass={
 #             'build_man': Help2ManBuild,
 #             'install_man': Help2ManInstall
