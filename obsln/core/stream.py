@@ -27,7 +27,7 @@ import os
 import pickle
 import re
 import warnings
-# from glob import glob, has_magic
+from glob import glob, has_magic
  
 import numpy as np
  
@@ -35,8 +35,8 @@ from obsln.core import compatibility
 from obsln.core.trace import Trace
 from obsln.core.utcdatetime import UTCDateTime
 # from obspy.core.util.attribdict import AttribDict
-from obsln.core.util.base import (ENTRY_POINTS, _get_function_from_entry_point)
-#                                     , _read_from_plugin, _generic_reader)
+from obsln.core.util.base import (ENTRY_POINTS, _get_function_from_entry_point,_read_from_plugin,_generic_reader)
+
 from obsln.core.util.decorator import (map_example_filename)
 #,
 #                                        raise_if_masked, uncompress_file)
@@ -46,271 +46,271 @@ from obsln.core.util.misc import get_window_times,buffered_load_entry_point
 # from obspy.core.util.obspy_types import ObsPyException
  
  
-# _headonly_warning_msg = (
-#     "Keyword headonly cannot be combined with starttime, endtime or dtype.")
+_headonly_warning_msg = (
+    "Keyword headonly cannot be combined with starttime, endtime or dtype.")
  
  
-# @map_example_filename("pathname_or_url")
-# def read(pathname_or_url=None, format=None, headonly=False, starttime=None,
-#          endtime=None, nearest_sample=True, dtype=None, apply_calib=False,
-#          check_compression=True, **kwargs):
-#     """
-#     Read waveform files into an ObsPy Stream object.
-# 
-#     The :func:`~obspy.core.stream.read` function opens either one or multiple
-#     waveform files given via file name or URL using the ``pathname_or_url``
-#     attribute.
-# 
-#     The format of the waveform file will be automatically detected if not
-#     given. See the `Supported Formats`_ section below for available formats.
-# 
-#     This function returns an ObsPy :class:`~obspy.core.stream.Stream` object, a
-#     ``list``-like object of multiple ObsPy :class:`~obspy.core.trace.Trace`
-#     objects.
-# 
-#     :type pathname_or_url: str or io.BytesIO, optional
-#     :param pathname_or_url: String containing a file name or a URL or a open
-#         file-like object. Wildcards are allowed for a file name. If this
-#         attribute is omitted, an example :class:`~obspy.core.stream.Stream`
-#         object will be returned.
-#     :type format: str, optional
-#     :param format: Format of the file to read (e.g. ``"MSEED"``). See
-#         the `Supported Formats`_ section below for a list of supported formats.
-#         If format is set to ``None`` it will be automatically detected which
-#         results in a slightly slower reading. If a format is specified, no
-#         further format checking is done.
-#     :type headonly: bool, optional
-#     :param headonly: If set to ``True``, read only the data header. This is
-#         most useful for scanning available meta information of huge data sets.
-#     :type starttime: :class:`~obspy.core.utcdatetime.UTCDateTime`, optional
-#     :param starttime: Specify the start time to read.
-#     :type endtime: :class:`~obspy.core.utcdatetime.UTCDateTime`, optional
-#     :param endtime: Specify the end time to read.
-#     :type nearest_sample: bool, optional
-#     :param nearest_sample: Only applied if `starttime` or `endtime` is given.
-#         Select nearest sample or the one containing the specified time. For
-#         more info, see :meth:`~obspy.core.trace.Trace.trim`.
-#     :type dtype: :class:`numpy.dtype`, optional
-#     :param dtype: Convert data of all traces into given numpy.dtype.
-#     :type apply_calib: bool, optional
-#     :param apply_calib: Automatically applies the calibration factor
-#         ``trace.stats.calib`` for each trace, if set. Defaults to ``False``.
-#     :param check_compression: Check for compression on file and decompress
-#         if needed. This may be disabled for a moderate speed up.
-#     :type check_compression: bool, optional
-#     :param kwargs: Additional keyword arguments passed to the underlying
-#         waveform reader method.
-#     :return: An ObsPy :class:`~obspy.core.stream.Stream` object.
-# 
-#     .. rubric:: Basic Usage
-# 
-#     In most cases a filename is specified as the only argument to
-#     :func:`~obspy.core.stream.read`. For a quick start you may omit all
-#     arguments and ObsPy will create and return a basic example seismogram.
-#     Further usages of the :func:`~obspy.core.stream.read` function can
-#     be seen in the `Further Examples`_ section underneath.
-# 
-#     >>> from obspy import read
-#     >>> st = read()
-#     >>> print(st)  # doctest: +ELLIPSIS
-#     3 Trace(s) in Stream:
-#     BW.RJOB..EHZ | 2009-08-24T00:20:03.000000Z - ... | 100.0 Hz, 3000 samples
-#     BW.RJOB..EHN | 2009-08-24T00:20:03.000000Z - ... | 100.0 Hz, 3000 samples
-#     BW.RJOB..EHE | 2009-08-24T00:20:03.000000Z - ... | 100.0 Hz, 3000 samples
-# 
-#     .. rubric:: _`Supported Formats`
-# 
-#     Additional ObsPy modules extend the functionality of the
-#     :func:`~obspy.core.stream.read` function. The following table summarizes
-#     all known file formats currently supported by ObsPy. The table order also
-#     reflects the order of the autodetection routine if no format option is
-#     specified.
-# 
-#     Please refer to the `Linked Function Call`_ of each module for any extra
-#     options available at the import stage.
-# 
-#     %s
-# 
-#     Next to the :func:`~obspy.core.stream.read` function the
-#     :meth:`~obspy.core.stream.Stream.write` method of the returned
-#     :class:`~obspy.core.stream.Stream` object can be used to export the data
-#     to the file system.
-# 
-#     .. rubric:: _`Further Examples`
-# 
-#     Example waveform files may be retrieved via https://examples.obspy.org.
-# 
-#     (1) Reading multiple local files using wildcards.
-# 
-#         The following code uses wildcards, in this case it matches two files.
-#         Both files are then read into a single
-#         :class:`~obspy.core.stream.Stream` object.
-# 
-#         >>> from obspy import read  # doctest: +SKIP
-#         >>> st = read("/path/to/loc_R*.z")  # doctest: +SKIP
-#         >>> print(st)  # doctest: +SKIP
-#         2 Trace(s) in Stream:
-#         .RJOB..Z | 2005-08-31T02:33:49.850000Z - ... | 200.0 Hz, 12000 samples
-#         .RNON..Z | 2004-06-09T20:05:59.850000Z - ... | 200.0 Hz, 12000 samples
-# 
-#     (2) Reading a local file without format detection.
-# 
-#         Using the ``format`` parameter disables the automatic detection and
-#         enforces reading a file in a given format.
-# 
-#         >>> from obspy import read
-#         >>> st = read("/path/to/loc_RJOB20050831023349.z", format="GSE2")
-#         >>> print(st)  # doctest: +ELLIPSIS
-#         1 Trace(s) in Stream:
-#         .RJOB..Z | 2005-08-31T02:33:49.850000Z - ... | 200.0 Hz, 12000 samples
-# 
-#     (3) Reading a remote file via HTTP protocol.
-# 
-#         >>> from obspy import read
-#         >>> st = read("https://examples.obspy.org/loc_RJOB20050831023349.z")
-#         >>> print(st)  # doctest: +ELLIPSIS
-#         1 Trace(s) in Stream:
-#         .RJOB..Z | 2005-08-31T02:33:49.850000Z - ... | 200.0 Hz, 12000 samples
-# 
-#     (4) Reading a compressed files.
-# 
-#         >>> from obspy import read
-#         >>> st = read("/path/to/tspair.ascii.gz")
-#         >>> print(st)  # doctest: +ELLIPSIS
-#         1 Trace(s) in Stream:
-#         XX.TEST..BHZ | 2008-01-15T00:00:00.025000Z - ... | 40.0 Hz, 635 samples
-# 
-#         >>> st = read("https://examples.obspy.org/slist.ascii.bz2")
-#         >>> print(st)  # doctest: +ELLIPSIS
-#         1 Trace(s) in Stream:
-#         XX.TEST..BHZ | 2008-01-15T00:00:00.025000Z - ... | 40.0 Hz, 635 samples
-# 
-#     (5) Reading a file-like object.
-# 
-#         >>> import requests
-#         >>> import io
-#         >>> example_url = "https://examples.obspy.org/loc_RJOB20050831023349.z"
-#         >>> stringio_obj = io.BytesIO(requests.get(example_url).content)
-#         >>> st = read(stringio_obj)
-#         >>> print(st)  # doctest: +ELLIPSIS
-#         1 Trace(s) in Stream:
-#         .RJOB..Z | 2005-08-31T02:33:49.850000Z - ... | 200.0 Hz, 12000 samples
-# 
-#     (6) Using 'starttime' and 'endtime' parameters
-# 
-#         >>> from obspy import read
-#         >>> dt = UTCDateTime("2005-08-31T02:34:00")
-#         >>> st = read("https://examples.obspy.org/loc_RJOB20050831023349.z",
-#         ...           starttime=dt, endtime=dt+10)
-#         >>> print(st)  # doctest: +ELLIPSIS
-#         1 Trace(s) in Stream:
-#         .RJOB..Z | 2005-08-31T02:34:00.000000Z - ... | 200.0 Hz, 2001 samples
-#     """
-#     # add default parameters to kwargs so sub-modules may handle them
-#     kwargs['starttime'] = starttime
-#     kwargs['endtime'] = endtime
-#     kwargs['nearest_sample'] = nearest_sample
-#     kwargs['check_compression'] = check_compression
-#     kwargs['headonly'] = headonly
-#     kwargs['format'] = format
-# 
-#     if pathname_or_url is None:
-#         # if no pathname or URL specified, return example stream
-#         st = _create_example_stream(headonly=headonly)
-#     else:
-#         st = _generic_reader(pathname_or_url, _read, **kwargs)
-# 
-#     if len(st) == 0:
-#         # try to give more specific information why the stream is empty
-#         if has_magic(pathname_or_url) and not glob(pathname_or_url):
-#             raise Exception("No file matching file pattern: %s" %
-#                             pathname_or_url)
-#         elif not has_magic(pathname_or_url) and \
-#                 not os.path.isfile(pathname_or_url):
-#             raise IOError(2, "No such file or directory", pathname_or_url)
-#         # Only raise error if no start/end time has been set. This
-#         # will return an empty stream if the user chose a time window with
-#         # no data in it.
-#         # XXX: Might cause problems if the data is faulty and the user
-#         # set start/end time. Not sure what to do in this case.
-#         elif not starttime and not endtime:
-#             raise Exception("Cannot open file/files: %s" % pathname_or_url)
-#     # Trim if times are given.
-#     if headonly and (starttime or endtime or dtype):
-#         warnings.warn(_headonly_warning_msg, UserWarning)
-#         return st
-#     if starttime:
-#         st._ltrim(starttime, nearest_sample=nearest_sample)
-#     if endtime:
-#         st._rtrim(endtime, nearest_sample=nearest_sample)
-#     # convert to dtype if given
-#     if dtype:
-#         # For compatibility with NumPy 1.4
-#         if isinstance(dtype, str):
-#             dtype = native_str(dtype)
-#         for tr in st:
-#             tr.data = np.require(tr.data, dtype)
-#     # applies calibration factor
-#     if apply_calib:
-#         for tr in st:
-#             tr.data = tr.data * tr.stats.calib
-#     return st
+@map_example_filename("pathname_or_url")
+def read(pathname_or_url=None, format=None, headonly=False, starttime=None,
+         endtime=None, nearest_sample=True, dtype=None, apply_calib=False,
+         check_compression=True, **kwargs):
+    """
+    Read waveform files into an ObsPy Stream object.
+ 
+    The :func:`~obspy.core.stream.read` function opens either one or multiple
+    waveform files given via file name or URL using the ``pathname_or_url``
+    attribute.
+ 
+    The format of the waveform file will be automatically detected if not
+    given. See the `Supported Formats`_ section below for available formats.
+ 
+    This function returns an ObsPy :class:`~obspy.core.stream.Stream` object, a
+    ``list``-like object of multiple ObsPy :class:`~obspy.core.trace.Trace`
+    objects.
+ 
+    :type pathname_or_url: str or io.BytesIO, optional
+    :param pathname_or_url: String containing a file name or a URL or a open
+        file-like object. Wildcards are allowed for a file name. If this
+        attribute is omitted, an example :class:`~obspy.core.stream.Stream`
+        object will be returned.
+    :type format: str, optional
+    :param format: Format of the file to read (e.g. ``"MSEED"``). See
+        the `Supported Formats`_ section below for a list of supported formats.
+        If format is set to ``None`` it will be automatically detected which
+        results in a slightly slower reading. If a format is specified, no
+        further format checking is done.
+    :type headonly: bool, optional
+    :param headonly: If set to ``True``, read only the data header. This is
+        most useful for scanning available meta information of huge data sets.
+    :type starttime: :class:`~obspy.core.utcdatetime.UTCDateTime`, optional
+    :param starttime: Specify the start time to read.
+    :type endtime: :class:`~obspy.core.utcdatetime.UTCDateTime`, optional
+    :param endtime: Specify the end time to read.
+    :type nearest_sample: bool, optional
+    :param nearest_sample: Only applied if `starttime` or `endtime` is given.
+        Select nearest sample or the one containing the specified time. For
+        more info, see :meth:`~obspy.core.trace.Trace.trim`.
+    :type dtype: :class:`numpy.dtype`, optional
+    :param dtype: Convert data of all traces into given numpy.dtype.
+    :type apply_calib: bool, optional
+    :param apply_calib: Automatically applies the calibration factor
+        ``trace.stats.calib`` for each trace, if set. Defaults to ``False``.
+    :param check_compression: Check for compression on file and decompress
+        if needed. This may be disabled for a moderate speed up.
+    :type check_compression: bool, optional
+    :param kwargs: Additional keyword arguments passed to the underlying
+        waveform reader method.
+    :return: An ObsPy :class:`~obspy.core.stream.Stream` object.
+ 
+    .. rubric:: Basic Usage
+ 
+    In most cases a filename is specified as the only argument to
+    :func:`~obspy.core.stream.read`. For a quick start you may omit all
+    arguments and ObsPy will create and return a basic example seismogram.
+    Further usages of the :func:`~obspy.core.stream.read` function can
+    be seen in the `Further Examples`_ section underneath.
+ 
+    >>> from obspy import read
+    >>> st = read()
+    >>> print(st)  # doctest: +ELLIPSIS
+    3 Trace(s) in Stream:
+    BW.RJOB..EHZ | 2009-08-24T00:20:03.000000Z - ... | 100.0 Hz, 3000 samples
+    BW.RJOB..EHN | 2009-08-24T00:20:03.000000Z - ... | 100.0 Hz, 3000 samples
+    BW.RJOB..EHE | 2009-08-24T00:20:03.000000Z - ... | 100.0 Hz, 3000 samples
+ 
+    .. rubric:: _`Supported Formats`
+ 
+    Additional ObsPy modules extend the functionality of the
+    :func:`~obspy.core.stream.read` function. The following table summarizes
+    all known file formats currently supported by ObsPy. The table order also
+    reflects the order of the autodetection routine if no format option is
+    specified.
+ 
+    Please refer to the `Linked Function Call`_ of each module for any extra
+    options available at the import stage.
+ 
+    %s
+ 
+    Next to the :func:`~obspy.core.stream.read` function the
+    :meth:`~obspy.core.stream.Stream.write` method of the returned
+    :class:`~obspy.core.stream.Stream` object can be used to export the data
+    to the file system.
+ 
+    .. rubric:: _`Further Examples`
+ 
+    Example waveform files may be retrieved via https://examples.obspy.org.
+ 
+    (1) Reading multiple local files using wildcards.
+ 
+        The following code uses wildcards, in this case it matches two files.
+        Both files are then read into a single
+        :class:`~obspy.core.stream.Stream` object.
+ 
+        >>> from obspy import read  # doctest: +SKIP
+        >>> st = read("/path/to/loc_R*.z")  # doctest: +SKIP
+        >>> print(st)  # doctest: +SKIP
+        2 Trace(s) in Stream:
+        .RJOB..Z | 2005-08-31T02:33:49.850000Z - ... | 200.0 Hz, 12000 samples
+        .RNON..Z | 2004-06-09T20:05:59.850000Z - ... | 200.0 Hz, 12000 samples
+ 
+    (2) Reading a local file without format detection.
+ 
+        Using the ``format`` parameter disables the automatic detection and
+        enforces reading a file in a given format.
+ 
+        >>> from obspy import read
+        >>> st = read("/path/to/loc_RJOB20050831023349.z", format="GSE2")
+        >>> print(st)  # doctest: +ELLIPSIS
+        1 Trace(s) in Stream:
+        .RJOB..Z | 2005-08-31T02:33:49.850000Z - ... | 200.0 Hz, 12000 samples
+ 
+    (3) Reading a remote file via HTTP protocol.
+ 
+        >>> from obspy import read
+        >>> st = read("https://examples.obspy.org/loc_RJOB20050831023349.z")
+        >>> print(st)  # doctest: +ELLIPSIS
+        1 Trace(s) in Stream:
+        .RJOB..Z | 2005-08-31T02:33:49.850000Z - ... | 200.0 Hz, 12000 samples
+ 
+    (4) Reading a compressed files.
+ 
+        >>> from obspy import read
+        >>> st = read("/path/to/tspair.ascii.gz")
+        >>> print(st)  # doctest: +ELLIPSIS
+        1 Trace(s) in Stream:
+        XX.TEST..BHZ | 2008-01-15T00:00:00.025000Z - ... | 40.0 Hz, 635 samples
+ 
+        >>> st = read("https://examples.obspy.org/slist.ascii.bz2")
+        >>> print(st)  # doctest: +ELLIPSIS
+        1 Trace(s) in Stream:
+        XX.TEST..BHZ | 2008-01-15T00:00:00.025000Z - ... | 40.0 Hz, 635 samples
+ 
+    (5) Reading a file-like object.
+ 
+        >>> import requests
+        >>> import io
+        >>> example_url = "https://examples.obspy.org/loc_RJOB20050831023349.z"
+        >>> stringio_obj = io.BytesIO(requests.get(example_url).content)
+        >>> st = read(stringio_obj)
+        >>> print(st)  # doctest: +ELLIPSIS
+        1 Trace(s) in Stream:
+        .RJOB..Z | 2005-08-31T02:33:49.850000Z - ... | 200.0 Hz, 12000 samples
+ 
+    (6) Using 'starttime' and 'endtime' parameters
+ 
+        >>> from obspy import read
+        >>> dt = UTCDateTime("2005-08-31T02:34:00")
+        >>> st = read("https://examples.obspy.org/loc_RJOB20050831023349.z",
+        ...           starttime=dt, endtime=dt+10)
+        >>> print(st)  # doctest: +ELLIPSIS
+        1 Trace(s) in Stream:
+        .RJOB..Z | 2005-08-31T02:34:00.000000Z - ... | 200.0 Hz, 2001 samples
+    """
+    # add default parameters to kwargs so sub-modules may handle them
+    kwargs['starttime'] = starttime
+    kwargs['endtime'] = endtime
+    kwargs['nearest_sample'] = nearest_sample
+    kwargs['check_compression'] = check_compression
+    kwargs['headonly'] = headonly
+    kwargs['format'] = format
+  
+    if pathname_or_url is None:
+        # if no pathname or URL specified, return example stream        
+        st = _create_example_stream(headonly=headonly)
+    else:        
+        st = _generic_reader(pathname_or_url, _read, **kwargs)
+ 
+    if len(st) == 0:
+        # try to give more specific information why the stream is empty
+        if has_magic(pathname_or_url) and not glob(pathname_or_url):
+            raise Exception("No file matching file pattern: %s" %
+                            pathname_or_url)
+        elif not has_magic(pathname_or_url) and \
+                not os.path.isfile(pathname_or_url):
+            raise IOError(2, "No such file or directory", pathname_or_url)
+        # Only raise error if no start/end time has been set. This
+        # will return an empty stream if the user chose a time window with
+        # no data in it.
+        # XXX: Might cause problems if the data is faulty and the user
+        # set start/end time. Not sure what to do in this case.
+        elif not starttime and not endtime:
+            raise Exception("Cannot open file/files: %s" % pathname_or_url)
+    # Trim if times are given.
+    if headonly and (starttime or endtime or dtype):
+        warnings.warn(_headonly_warning_msg, UserWarning)
+        return st
+    if starttime:
+        st._ltrim(starttime, nearest_sample=nearest_sample)
+    if endtime:
+        st._rtrim(endtime, nearest_sample=nearest_sample)
+    # convert to dtype if given
+    if dtype:
+        # For compatibility with NumPy 1.4
+        if isinstance(dtype, str):
+            dtype = native_str(dtype)
+        for tr in st:
+            tr.data = np.require(tr.data, dtype)
+    # applies calibration factor
+    if apply_calib:
+        for tr in st:
+            tr.data = tr.data * tr.stats.calib
+    return st
  
  
 # @uncompress_file
-# def _read(filename, format=None, headonly=False, **kwargs):
-#     """
-#     Read a single file into a ObsPy Stream object.
-#     """
-#     stream, format = _read_from_plugin('waveform', filename, format=format,
-#                                        headonly=headonly, **kwargs)
-#     # set _format identifier for each element
-#     for trace in stream:
-#         trace.stats._format = format
-#     return stream
+def _read(filename, format=None, headonly=False, **kwargs):
+    """
+    Read a single file into a ObsPy Stream object.
+    """    
+    stream, format = _read_from_plugin('waveform', filename, format=format,
+                                       headonly=headonly, **kwargs)
+    # set _format identifier for each element
+    for trace in stream:
+        trace.stats._format = format
+    return stream
  
  
-# def _create_example_stream(headonly=False):
-#     """
-#     Create an example stream.
-# 
-#     Data arrays are stored in NumPy's NPZ format. The header information are
-#     fixed values.
-# 
-#     PAZ of the used instrument, needed to demonstrate simulate_seismometer()
-#     etc.::
-# 
-#         paz = {'gain': 60077000.0,
-#                'poles': [-0.037004+0.037016j, -0.037004-0.037016j, -251.33+0j,
-#                          -131.04-467.29j, -131.04+467.29j],
-#                'sensitivity': 2516778400.0,
-#                'zeros': [0j, 0j]}}
-# 
-#     """
-#     data_dir = os.path.join(os.path.dirname(__file__), "data")
-#     if not headonly:
-#         path = os.path.join(data_dir, "example.npz")
-#         data = np.load(path)
-#     st = Stream()
-#     for channel in ["EHZ", "EHN", "EHE"]:
-#         header = {'network': "BW",
-#                   'station': "RJOB",
-#                   'location': "",
-#                   'npts': 3000,
-#                   'starttime': UTCDateTime(2009, 8, 24, 0, 20, 3),
-#                   'sampling_rate': 100.0,
-#                   'calib': 1.0,
-#                   'back_azimuth': 100.0,
-#                   'inclination': 30.0}
-#         header['channel'] = channel
-#         if not headonly:
-#             st.append(Trace(data=data[channel], header=header))
-#         else:
-#             st.append(Trace(header=header))
-#     from obspy import read_inventory
-#     inv = read_inventory(os.path.join(data_dir, "BW_RJOB.xml"))
-#     st.attach_response(inv)
-#     return st
+def _create_example_stream(headonly=False):
+    """
+    Create an example stream.
+ 
+    Data arrays are stored in NumPy's NPZ format. The header information are
+    fixed values.
+ 
+    PAZ of the used instrument, needed to demonstrate simulate_seismometer()
+    etc.::
+ 
+        paz = {'gain': 60077000.0,
+               'poles': [-0.037004+0.037016j, -0.037004-0.037016j, -251.33+0j,
+                         -131.04-467.29j, -131.04+467.29j],
+               'sensitivity': 2516778400.0,
+               'zeros': [0j, 0j]}}
+ 
+    """
+    data_dir = os.path.join(os.path.dirname(__file__), "data")
+    if not headonly:
+        path = os.path.join(data_dir, "example.npz")
+        data = np.load(path)
+    st = Stream()
+    for channel in ["EHZ", "EHN", "EHE"]:
+        header = {'network': "BW",
+                  'station': "RJOB",
+                  'location': "",
+                  'npts': 3000,
+                  'starttime': UTCDateTime(2009, 8, 24, 0, 20, 3),
+                  'sampling_rate': 100.0,
+                  'calib': 1.0,
+                  'back_azimuth': 100.0,
+                  'inclination': 30.0}
+        header['channel'] = channel
+        if not headonly:
+            st.append(Trace(data=data[channel], header=header))
+        else:
+            st.append(Trace(header=header))
+    from obspy import read_inventory
+    inv = read_inventory(os.path.join(data_dir, "BW_RJOB.xml"))
+    st.attach_response(inv)
+    return st
  
  
 class Stream(object):
@@ -1458,10 +1458,6 @@ class Stream(object):
             format = format[1:]
         format = format.upper()
         
-        print("Here format=",format)
-        
-        print("ENTRY_POINTS['waveform_write']=",ENTRY_POINTS['waveform_write'])
-        
         try:
             # get format specific entry point
             format_ep = ENTRY_POINTS['waveform_write'][format]
@@ -1469,7 +1465,7 @@ class Stream(object):
             # search writeFormat method for given entry point
             write_format = buffered_load_entry_point(
                 format_ep.dist.key,
-                'obspy.plugin.waveform.%s' % (format_ep.name), 'writeFormat')
+                'obsln.plugin.waveform.%s' % (format_ep.name), 'writeFormat')
         except (IndexError, ImportError, KeyError):
             msg = "Writing format \"%s\" is not supported. Supported types: %s"
             raise ValueError(msg % (format,

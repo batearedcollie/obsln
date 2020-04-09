@@ -20,18 +20,19 @@ import numpy as np
 #                         unicode_literals)
 # from future.builtins import *  # NOQA
 # from future.utils import PY2
+from obsln.core.futureutils import PY2
 
-# import builtins
+import builtins
 # import doctest
-# import glob
+import glob
 # import importlib
 # import inspect
-# import io
+import io
 import os
-# import re
-# import sys
-# import tempfile
-# import unicodedata
+import re
+import sys
+import tempfile
+import unicodedata
 # import warnings
 from collections import OrderedDict
  
@@ -71,76 +72,76 @@ WAVEFORM_PREFERRED_ORDER = ['MSEED', 'SAC', 'GSE2', 'SEISAN', 'SACXY', 'GSE1',
 EVENT_PREFERRED_ORDER = ['QUAKEML', 'NLLOC_HYP']
 INVENTORY_PREFERRED_ORDER = ['STATIONXML', 'SEED', 'RESP']
 
-# # waveform plugins accepting a byteorder keyword
-# WAVEFORM_ACCEPT_BYTEORDER = ['MSEED', 'Q', 'SAC', 'SEGY', 'SU']
-# 
-# _sys_is_le = sys.byteorder == 'little'
-# NATIVE_BYTEORDER = _sys_is_le and '<' or '>'
+# waveform plugins accepting a byteorder keyword
+WAVEFORM_ACCEPT_BYTEORDER = ['MSEED', 'Q', 'SAC', 'SEGY', 'SU']
+ 
+_sys_is_le = sys.byteorder == 'little'
+NATIVE_BYTEORDER = _sys_is_le and '<' or '>'
 
 
-# class NamedTemporaryFile(io.BufferedIOBase):
-#     """
-#     Weak replacement for the Python's tempfile.TemporaryFile.
-# 
-#     This class is a replacement for :func:`tempfile.NamedTemporaryFile` but
-#     will work also with Windows 7/Vista's UAC.
-# 
-#     :type dir: str
-#     :param dir: If specified, the file will be created in that directory,
-#         otherwise the default directory for temporary files is used.
-#     :type suffix: str
-#     :param suffix: The temporary file name will end with that suffix. Defaults
-#         to ``'.tmp'``.
-# 
-#     .. rubric:: Example
-# 
-#     >>> with NamedTemporaryFile() as tf:
-#     ...     _ = tf.write(b"test")
-#     ...     os.path.exists(tf.name)
-#     True
-#     >>> # when using the with statement, the file is deleted at the end:
-#     >>> os.path.exists(tf.name)
-#     False
-# 
-#     >>> with NamedTemporaryFile() as tf:
-#     ...     filename = tf.name
-#     ...     with open(filename, 'wb') as fh:
-#     ...         _ = fh.write(b"just a test")
-#     ...     with open(filename, 'r') as fh:
-#     ...         print(fh.read())
-#     just a test
-#     >>> # when using the with statement, the file is deleted at the end:
-#     >>> os.path.exists(tf.name)
-#     False
-#     """
-# 
-#     def __init__(self, dir=None, suffix='.tmp', prefix='obspy-'):
-#         fd, self.name = tempfile.mkstemp(dir=dir, prefix=prefix, suffix=suffix)
-#         self._fileobj = os.fdopen(fd, 'w+b', 0)  # 0 -> do not buffer
-# 
-#     def read(self, *args, **kwargs):
-#         return self._fileobj.read(*args, **kwargs)
-# 
-#     def write(self, *args, **kwargs):
-#         return self._fileobj.write(*args, **kwargs)
-# 
-#     def seek(self, *args, **kwargs):
-#         self._fileobj.seek(*args, **kwargs)
-#         return self._fileobj.tell()
-# 
-#     def tell(self, *args, **kwargs):
-#         return self._fileobj.tell(*args, **kwargs)
-# 
-#     def close(self, *args, **kwargs):
-#         super(NamedTemporaryFile, self).close(*args, **kwargs)
-#         self._fileobj.close()
-# 
-#     def __enter__(self):
-#         return self
-# 
-#     def __exit__(self, exc_type, exc_val, exc_tb):  # @UnusedVariable
-#         self.close()
-#         os.remove(self.name)
+class NamedTemporaryFile(io.BufferedIOBase):
+    """
+    Weak replacement for the Python's tempfile.TemporaryFile.
+ 
+    This class is a replacement for :func:`tempfile.NamedTemporaryFile` but
+    will work also with Windows 7/Vista's UAC.
+ 
+    :type dir: str
+    :param dir: If specified, the file will be created in that directory,
+        otherwise the default directory for temporary files is used.
+    :type suffix: str
+    :param suffix: The temporary file name will end with that suffix. Defaults
+        to ``'.tmp'``.
+ 
+    .. rubric:: Example
+ 
+    >>> with NamedTemporaryFile() as tf:
+    ...     _ = tf.write(b"test")
+    ...     os.path.exists(tf.name)
+    True
+    >>> # when using the with statement, the file is deleted at the end:
+    >>> os.path.exists(tf.name)
+    False
+ 
+    >>> with NamedTemporaryFile() as tf:
+    ...     filename = tf.name
+    ...     with open(filename, 'wb') as fh:
+    ...         _ = fh.write(b"just a test")
+    ...     with open(filename, 'r') as fh:
+    ...         print(fh.read())
+    just a test
+    >>> # when using the with statement, the file is deleted at the end:
+    >>> os.path.exists(tf.name)
+    False
+    """
+ 
+    def __init__(self, dir=None, suffix='.tmp', prefix='obspy-'):
+        fd, self.name = tempfile.mkstemp(dir=dir, prefix=prefix, suffix=suffix)
+        self._fileobj = os.fdopen(fd, 'w+b', 0)  # 0 -> do not buffer
+ 
+    def read(self, *args, **kwargs):
+        return self._fileobj.read(*args, **kwargs)
+ 
+    def write(self, *args, **kwargs):
+        return self._fileobj.write(*args, **kwargs)
+ 
+    def seek(self, *args, **kwargs):
+        self._fileobj.seek(*args, **kwargs)
+        return self._fileobj.tell()
+ 
+    def tell(self, *args, **kwargs):
+        return self._fileobj.tell(*args, **kwargs)
+ 
+    def close(self, *args, **kwargs):
+        super(NamedTemporaryFile, self).close(*args, **kwargs)
+        self._fileobj.close()
+ 
+    def __enter__(self):
+        return self
+ 
+    def __exit__(self, exc_type, exc_val, exc_tb):  # @UnusedVariable
+        self.close()
+        os.remove(self.name)
 
 
 def create_empty_data_chunk(delta, dtype, fill_value=None):
@@ -215,8 +216,10 @@ def get_example_file(filename):
     """
     for module in ALL_MODULES:
         try:
-            mod = __import__("obspy.%s" % module,
-                             fromlist=[native_str("obspy")])
+#             mod = __import__("obspy.%s" % module,
+#                              fromlist=[native_str("obspy")])
+            mod = __import__("obsln.%s" % module,
+                             fromlist=[native_str("obsln")])
         except ImportError:
             continue
         file_ = os.path.join(mod.__path__[0], "tests", "data", filename)
@@ -246,6 +249,7 @@ def _get_entry_points(group, subgroup=None):
     >>> _get_entry_points('obspy.plugin.waveform')  # doctest: +ELLIPSIS
     {...'SLIST': EntryPoint.parse('SLIST = obspy.io.ascii.core')...}
     """
+    
     features = {}
     for ep in iter_entry_points(group):
         if subgroup:
@@ -253,6 +257,7 @@ def _get_entry_points(group, subgroup=None):
                 features[ep.name] = ep
         else:
             features[ep.name] = ep
+            
     return features
 
 
@@ -261,15 +266,8 @@ def _get_ordered_entry_points(group, subgroup=None, order_list=[]):
     Gets a ordered dictionary of all available plug-ins of a group or subgroup.
     """
     
-#     print("\n_get_ordered_entry_points")
-#     print(group)
-#     print(subgroup)
-#     print(order_list)
-    
     # get all available entry points
     ep_dict = _get_entry_points(group, subgroup)
-    
-#     print("ep_dict=",ep_dict)
     
     # loop through official supported waveform plug-ins and add them to
     # ordered dict of entry points
@@ -278,33 +276,35 @@ def _get_ordered_entry_points(group, subgroup=None, order_list=[]):
         try:
             entry_points[name] = ep_dict.pop(name)
         except Exception:
+            
             # skip plug-ins which are not installed
             continue
     # extend entry points with any left over waveform plug-ins
     entry_points.update(ep_dict)
+
     return entry_points
 
 
 ENTRY_POINTS = {
-    'trigger': _get_entry_points('obspy.plugin.trigger'),
-    'filter': _get_entry_points('obspy.plugin.filter'),
-    'rotate': _get_entry_points('obspy.plugin.rotate'),
-    'detrend': _get_entry_points('obspy.plugin.detrend'),
-    'interpolate': _get_entry_points('obspy.plugin.interpolate'),
-    'integrate': _get_entry_points('obspy.plugin.integrate'),
-    'differentiate': _get_entry_points('obspy.plugin.differentiate'),
+#     'trigger': _get_entry_points('obspy.plugin.trigger'),
+#     'filter': _get_entry_points('obspy.plugin.filter'),
+#     'rotate': _get_entry_points('obspy.plugin.rotate'),
+#     'detrend': _get_entry_points('obspy.plugin.detrend'),
+#     'interpolate': _get_entry_points('obspy.plugin.interpolate'),
+#     'integrate': _get_entry_points('obspy.plugin.integrate'),
+#     'differentiate': _get_entry_points('obspy.plugin.differentiate'),
     'waveform': _get_ordered_entry_points(
-        'obspy.plugin.waveform', 'readFormat', WAVEFORM_PREFERRED_ORDER),
+        'obsln.plugin.waveform', 'readFormat', WAVEFORM_PREFERRED_ORDER),
     'waveform_write': _get_ordered_entry_points(
-        'obspy.plugin.waveform', 'writeFormat', WAVEFORM_PREFERRED_ORDER),
-    'event': _get_ordered_entry_points('obspy.plugin.event', 'readFormat',
-                                       EVENT_PREFERRED_ORDER),
-    'event_write': _get_entry_points('obspy.plugin.event', 'writeFormat'),
-    'taper': _get_entry_points('obspy.plugin.taper'),
-    'inventory': _get_ordered_entry_points(
-        'obspy.plugin.inventory', 'readFormat', INVENTORY_PREFERRED_ORDER),
-    'inventory_write': _get_entry_points(
-        'obspy.plugin.inventory', 'writeFormat'),
+        'obsln.plugin.waveform', 'writeFormat', WAVEFORM_PREFERRED_ORDER),
+#     'event': _get_ordered_entry_points('obspy.plugin.event', 'readFormat',
+#                                        EVENT_PREFERRED_ORDER),
+#     'event_write': _get_entry_points('obspy.plugin.event', 'writeFormat'),
+#     'taper': _get_entry_points('obspy.plugin.taper'),
+#     'inventory': _get_ordered_entry_points(
+#         'obspy.plugin.inventory', 'readFormat', INVENTORY_PREFERRED_ORDER),
+#     'inventory_write': _get_entry_points(
+#         'obspy.plugin.inventory', 'writeFormat'),
 }
 
 
@@ -347,8 +347,11 @@ def _get_function_from_entry_point(group, type):
     # import function point
     # any issue during import of entry point should be raised, so the user has
     # a chance to correct the problem
+#     func = buffered_load_entry_point(entry_point.dist.key,
+#                                      'obspy.plugin.%s' % (group),
+#                                      entry_point.name)
     func = buffered_load_entry_point(entry_point.dist.key,
-                                     'obspy.plugin.%s' % (group),
+                                     'obsln.plugin.%s' % (group),
                                      entry_point.name)
     return func
 
@@ -428,66 +431,73 @@ NUMPY_VERSION = get_dependency_version('numpy')
 # CARTOPY_VERSION = get_dependency_version('cartopy')
 
 
-# if PY2:
-#     FileNotFoundError = getattr(builtins, 'IOError')
+if PY2:
+    FileNotFoundError = getattr(builtins, 'IOError')
 
 
-# def _read_from_plugin(plugin_type, filename, format=None, **kwargs):
-#     """
-#     Reads a single file from a plug-in's readFormat function.
-#     """
-#     if isinstance(filename, (str, native_str)):
-#         if not os.path.exists(filename):
-#             msg = "[Errno 2] No such file or directory: '{}'".format(
-#                 filename)
-#             raise FileNotFoundError(msg)
-#     eps = ENTRY_POINTS[plugin_type]
-#     # get format entry point
-#     format_ep = None
-#     if not format:
-#         # auto detect format - go through all known formats in given sort order
-#         for format_ep in eps.values():
-#             # search isFormat for given entry point
-#             is_format = buffered_load_entry_point(
-#                 format_ep.dist.key,
+def _read_from_plugin(plugin_type, filename, format=None, **kwargs):
+    """
+    Reads a single file from a plug-in's readFormat function.
+    """
+
+    if isinstance(filename, (str, native_str)):
+        if not os.path.exists(filename):
+            msg = "[Errno 2] No such file or directory: '{}'".format(
+                filename)
+            raise FileNotFoundError(msg)
+
+    
+    eps = ENTRY_POINTS[plugin_type]
+        
+
+    # get format entry point
+    format_ep = None
+    if not format:
+        # auto detect format - go through all known formats in given sort order
+        for format_ep in eps.values():
+            # search isFormat for given entry point
+            is_format = buffered_load_entry_point(
+                format_ep.dist.key,
 #                 'obspy.plugin.%s.%s' % (plugin_type, format_ep.name),
-#                 'isFormat')
-#             # If it is a file-like object, store the position and restore it
-#             # later to avoid that the isFormat() functions move the file
-#             # pointer.
-#             if hasattr(filename, "tell") and hasattr(filename, "seek"):
-#                 position = filename.tell()
-#             else:
-#                 position = None
-#             # check format
-#             is_format = is_format(filename)
-#             if position is not None:
-#                 filename.seek(position, 0)
-#             if is_format:
-#                 break
-#         else:
-#             raise TypeError('Unknown format for file %s' % filename)
-#     else:
-#         # format given via argument
-#         format = format.upper()
-#         try:
-#             format_ep = eps[format]
-#         except (KeyError, IndexError):
-#             msg = "Format \"%s\" is not supported. Supported types: %s"
-#             raise TypeError(msg % (format, ', '.join(eps)))
-#     # file format should be known by now
-#     try:
-#         # search readFormat for given entry point
-#         read_format = buffered_load_entry_point(
-#             format_ep.dist.key,
+                'obsln.plugin.%s.%s' % (plugin_type, format_ep.name),
+                'isFormat')
+            # If it is a file-like object, store the position and restore it
+            # later to avoid that the isFormat() functions move the file
+            # pointer.
+            if hasattr(filename, "tell") and hasattr(filename, "seek"):
+                position = filename.tell()
+            else:
+                position = None
+            # check format
+            is_format = is_format(filename)
+            if position is not None:
+                filename.seek(position, 0)
+            if is_format:
+                break
+        else:
+            raise TypeError('Unknown format for file %s' % filename)
+    else:
+        # format given via argument
+        format = format.upper()
+        try:
+            format_ep = eps[format]
+        except (KeyError, IndexError):
+            msg = "Format \"%s\" is not supported. Supported types: %s"
+            raise TypeError(msg % (format, ', '.join(eps)))
+    # file format should be known by now
+    try:
+        # search readFormat for given entry point
+        read_format = buffered_load_entry_point(
+            format_ep.dist.key,
 #             'obspy.plugin.%s.%s' % (plugin_type, format_ep.name),
-#             'readFormat')
-#     except ImportError:
-#         msg = "Format \"%s\" is not supported. Supported types: %s"
-#         raise TypeError(msg % (format_ep.name, ', '.join(eps)))
-#     # read
-#     list_obj = read_format(filename, **kwargs)
-#     return list_obj, format_ep.name
+            'obsln.plugin.%s.%s' % (plugin_type, format_ep.name),
+            'readFormat')
+    except ImportError:
+        msg = "Format \"%s\" is not supported. Supported types: %s"
+        raise TypeError(msg % (format_ep.name, ', '.join(eps)))
+    # read
+    list_obj = read_format(filename, **kwargs)
+    return list_obj, format_ep.name
 
 
 # def get_script_dir_name():
@@ -626,47 +636,50 @@ NUMPY_VERSION = get_dependency_version('numpy')
 #     return _Action
 
 
-# def sanitize_filename(filename):
-#     """
-#     Adapted from Django's slugify functions.
-# 
-#     :param filename: The filename.
-#     """
-#     try:
-#         filename = filename.decode()
-#     except AttributeError:
-#         pass
-# 
-#     value = unicodedata.normalize('NFKD', filename).encode(
-#         'ascii', 'ignore').decode('ascii')
-#     # In constrast to django we allow dots and don't lowercase.
-#     value = re.sub(r'[^\w\.\s-]', '', value).strip()
-#     return re.sub(r'[-\s]+', '-', value)
+def sanitize_filename(filename):
+    """
+    Adapted from Django's slugify functions.
+ 
+    :param filename: The filename.
+    """
+    try:
+        filename = filename.decode()
+    except AttributeError:
+        pass
+ 
+    value = unicodedata.normalize('NFKD', filename).encode(
+        'ascii', 'ignore').decode('ascii')
+    # In constrast to django we allow dots and don't lowercase.
+    value = re.sub(r'[^\w\.\s-]', '', value).strip()
+    return re.sub(r'[-\s]+', '-', value)
 
 
-# def download_to_file(url, filename_or_buffer, chunk_size=1024):
-#     """
-#     Helper function to download a potentially large file.
-# 
-#     :param url: The URL to GET the data from.
-#     :type url: str
-#     :param filename_or_buffer: The filename_or_buffer or file-like object to
-#         download to.
-#     :type filename_or_buffer: str or file-like object
-#     :param chunk_size: The chunk size in bytes.
-#     :type chunk_size: int
-#     """
-#     # Workaround for old request versions.
+def download_to_file(url, filename_or_buffer, chunk_size=1024):
+    """
+    Helper function to download a potentially large file.
+ 
+    :param url: The URL to GET the data from.
+    :type url: str
+    :param filename_or_buffer: The filename_or_buffer or file-like object to
+        download to.
+    :type filename_or_buffer: str or file-like object
+    :param chunk_size: The chunk size in bytes.
+    :type chunk_size: int
+    """
+    
+    raise RuntimeError("Function obsln.core.base.download_to_file has been disabled as it requires the requests module")
+    
+    # Workaround for old request versions.
 #     try:
 #         r = requests.get(url, stream=True)
 #     except TypeError:
 #         r = requests.get(url)
-# 
+#  
 #     # Raise anything except for 200
 #     if r.status_code != 200:
 #         raise requests.HTTPError('%s HTTP Error: %s for url: %s'
 #                                  % (r.status_code, r.reason, url))
-# 
+#  
 #     if hasattr(filename_or_buffer, "write"):
 #         for chunk in r.iter_content(chunk_size=chunk_size):
 #             if not chunk:
@@ -680,49 +693,56 @@ NUMPY_VERSION = get_dependency_version('numpy')
 #                 fh.write(chunk)
 
 
-# def _generic_reader(pathname_or_url=None, callback_func=None,
-#                     **kwargs):
-#     if not isinstance(pathname_or_url, (str, native_str)):
-#         # not a string - we assume a file-like object
-#         try:
-#             # first try reading directly
-#             generic = callback_func(pathname_or_url, **kwargs)
-#         except TypeError:
-#             # if this fails, create a temporary file which is read directly
-#             # from the file system
-#             pathname_or_url.seek(0)
-#             with NamedTemporaryFile() as fh:
-#                 fh.write(pathname_or_url.read())
-#                 generic = callback_func(fh.name, **kwargs)
-#         return generic
-#     elif isinstance(pathname_or_url, bytes) and \
-#             pathname_or_url.strip().startswith(b'<'):
-#         # XML string
-#         return callback_func(io.BytesIO(pathname_or_url), **kwargs)
-#     elif "://" in pathname_or_url[:10]:
-#         # URL
-#         # extract extension if any
-#         suffix = os.path.basename(pathname_or_url).partition('.')[2] or '.tmp'
-#         with NamedTemporaryFile(suffix=sanitize_filename(suffix)) as fh:
-#             download_to_file(url=pathname_or_url, filename_or_buffer=fh)
-#             generic = callback_func(fh.name, **kwargs)
-#         return generic
-#     else:
-#         pathname = pathname_or_url
-#         # File name(s)
-#         pathnames = sorted(glob.glob(pathname))
-#         if not pathnames:
-#             # try to give more specific information why the stream is empty
-#             if glob.has_magic(pathname) and not glob.glob(pathname):
-#                 raise Exception("No file matching file pattern: %s" % pathname)
-#             elif not glob.has_magic(pathname) and not os.path.isfile(pathname):
-#                 raise IOError(2, "No such file or directory", pathname)
-# 
-#         generic = callback_func(pathnames[0], **kwargs)
-#         if len(pathnames) > 1:
-#             for filename in pathnames[1:]:
-#                 generic.extend(callback_func(filename, **kwargs))
-#         return generic
+def _generic_reader(pathname_or_url=None, callback_func=None,
+                    **kwargs):
+    
+
+    if not isinstance(pathname_or_url, (str, native_str)):
+        # not a string - we assume a file-like object
+
+        try:
+            # first try reading directly
+            generic = callback_func(pathname_or_url, **kwargs)
+        except TypeError:
+            # if this fails, create a temporary file which is read directly
+            # from the file system
+            pathname_or_url.seek(0)
+            with NamedTemporaryFile() as fh:
+                fh.write(pathname_or_url.read())
+                generic = callback_func(fh.name, **kwargs)
+        return generic
+    elif isinstance(pathname_or_url, bytes) and \
+            pathname_or_url.strip().startswith(b'<'):
+        # XML string
+        return callback_func(io.BytesIO(pathname_or_url), **kwargs)
+    elif "://" in pathname_or_url[:10]:
+        
+        # URL
+        # extract extension if any
+        suffix = os.path.basename(pathname_or_url).partition('.')[2] or '.tmp'
+        with NamedTemporaryFile(suffix=sanitize_filename(suffix)) as fh:
+            download_to_file(url=pathname_or_url, filename_or_buffer=fh)
+            generic = callback_func(fh.name, **kwargs)
+        return generic
+    else:
+        
+        pathname = pathname_or_url
+        # File name(s)
+        pathnames = sorted(glob.glob(pathname))
+                
+        if not pathnames:
+            # try to give more specific information why the stream is empty
+            if glob.has_magic(pathname) and not glob.glob(pathname):
+                raise Exception("No file matching file pattern: %s" % pathname)
+            elif not glob.has_magic(pathname) and not os.path.isfile(pathname):
+                raise IOError(2, "No such file or directory", pathname)
+ 
+        generic = callback_func(pathnames[0], **kwargs)
+        
+        if len(pathnames) > 1:
+            for filename in pathnames[1:]:
+                generic.extend(callback_func(filename, **kwargs))
+        return generic
 
 # 
 # class CatchAndAssertWarnings(warnings.catch_warnings):

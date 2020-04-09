@@ -17,5 +17,7 @@ from obsln.core.utcdatetime import UTCDateTime
 from obsln.core.util.attribdict import AttribDict
 
 from obsln.core.trace import Stats, Trace 
-from obsln.core.stream import Stream
-#, read  # NOQA
+from obsln.core.stream import Stream, read
+
+
+
