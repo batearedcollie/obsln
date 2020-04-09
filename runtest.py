@@ -98,50 +98,69 @@ class Test1(unittest.TestCase):
 #         print("\nGaps:\n")
 #         st.print_gaps()
 #         
-#         # TODO - write stream using write() method
         
-    def testSEGY(self):
-        
-        print("\n******************\ntestSEGY\n******************\n")
-        
+#     def testSEGY(self):
+#         
+#         print("\n******************\ntestSEGY\n******************\n")
+#         
+#         # Make some data
+#         from obsln import Stream
+#         from obsln import Trace
+#         import numpy as np
+#                   
+#         st = Stream()
+#         for ii in range(0,10):
+#             tt = np.linspace(0,2,501)
+#             ff = np.sin(2*np.pi*40*tt,dtype=np.float32)*(ii+1)
+#             trc = Trace(data=ff,header={"sampling_rate":250,"station":"stn"+str(ii)})
+#             st.append(trc)
+#  
+#         # Write as SEGY
+#         from obsln.io.segy.core import _write_segy
+#         _write_segy(st,"test.sgy")
+#  
+#         # Read back in full file - standard read function
+#         print("\n*******\nRead in stream")
+#         from obsln import read
+#         rst = read("test.sgy")
+# 
+#         # Use the generic writer
+#         rst.write("test2.segy")
+# 
+#         # Read back in headers
+#         from obsln.io.segy.segy import iread_segy
+#         for tr in iread_segy("test2.segy"):
+#             print(tr,np.min(tr.data),np.max(tr.data))
+#         
+#         # Reading to internla SEGY object
+#         from obsln.io.segy.segy import _read_segy
+#         segy = _read_segy("test.sgy")
+#         print("segy=",segy)
 
+    def testSU(self):
+        
+        print("\n******************\ntestSU\n******************\n")
         
         # Make some data
         from obsln import Stream
         from obsln import Trace
         import numpy as np
-                  
+        
         st = Stream()
         for ii in range(0,10):
             tt = np.linspace(0,2,501)
             ff = np.sin(2*np.pi*40*tt,dtype=np.float32)*(ii+1)
             trc = Trace(data=ff,header={"sampling_rate":250,"station":"stn"+str(ii)})
             st.append(trc)
- 
-#         # Write as SEGY
-#         from obsln.io.segy.core import _write_segy
-#         _write_segy(st,"test.sgy")
-# 
-#         # Read back in full file
-#         print("\n*******\nRead in stream")
-#         from obsln import read
-#         #rst = read("test.sgy",format='SEGY')
-#         rst = read("test.sgy")
-#         #print(rst)
-#         for tr in rst: print(tr,np.min(tr.data),np.max(tr.data))
-        
-        # Use the generic writer
-        st.write("test2.segy")
 
-        # Read back in headers
-        from obsln.io.segy.segy import iread_segy
-        for tr in iread_segy("test2.segy"):
-            print(tr,np.min(tr.data),np.max(tr.data))
-        
+        # Write as SU
+        st.write("test.su")
+
+        from obsln import read
+        rst = read("test.su")
+        for tr in rst: print(tr)
 
 
-
-    # SU IO
 
     # SEG2 IO    
     
