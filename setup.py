@@ -86,7 +86,7 @@ ENTRY_POINTS = {
 #         'SAC = obspy.io.sac.core',
 #         'SACXY = obspy.io.sac.core',
 #         'Y = obspy.io.y.core',
-#         'SEG2 = obspy.io.seg2.seg2',
+        'SEG2 = obsln.io.seg2.seg2',
         'SEGY = obsln.io.segy.core',
         'SU = obsln.io.segy.core',
 #         'SEISAN = obspy.io.seisan.core',
@@ -159,10 +159,10 @@ ENTRY_POINTS = {
 #         'readFormat = obspy.io.sac.core:_read_sac_xy',
 #         'writeFormat = obspy.io.sac.core:_write_sac_xy',
 #         ],
-#     'obspy.plugin.waveform.SEG2': [
-#         'isFormat = obspy.io.seg2.seg2:_is_seg2',
-#         'readFormat = obspy.io.seg2.seg2:_read_seg2',
-#         ],
+    'obsln.plugin.waveform.SEG2': [
+        'isFormat = obsln.io.seg2.seg2:_is_seg2',
+        'readFormat = obsln.io.seg2.seg2:_read_seg2',
+        ],
     'obsln.plugin.waveform.SEGY': [
         'isFormat = obsln.io.segy.core:_is_segy',
         'readFormat = obsln.io.segy.core:_read_segy',

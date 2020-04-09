@@ -252,12 +252,13 @@ def _get_entry_points(group, subgroup=None):
     
     features = {}
     for ep in iter_entry_points(group):
+        
         if subgroup:
             if list(iter_entry_points(group + '.' + ep.name, subgroup)):
                 features[ep.name] = ep
         else:
             features[ep.name] = ep
-            
+    
     return features
 
 
@@ -446,10 +447,9 @@ def _read_from_plugin(plugin_type, filename, format=None, **kwargs):
                 filename)
             raise FileNotFoundError(msg)
 
-    
+
     eps = ENTRY_POINTS[plugin_type]
         
-
     # get format entry point
     format_ep = None
     if not format:
