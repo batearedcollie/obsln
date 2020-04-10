@@ -16,7 +16,7 @@ As you will see the much of the code has been shamelessly hacked from ObsPy and 
 For full ObsPy functionality please see the ObsPy project on GitHub [here](https://github.com/obspy)
 
 
-Building Docker Image
+Building the Docker Image
 ---------------------
 
 	docker build -t obsln:latest .
@@ -26,4 +26,4 @@ Running Examples in Docker Image
 --------------------------------
 
 
-	docker run --entrypoint=/usr/bin/python3 obsln:latest -c "runtest.py"
+	docker run -v `pwd`:/src/obsln --entrypoint=/bin/bash obsln:latest -c "python3 /src/obsln/runtest.py"

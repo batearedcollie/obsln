@@ -7,7 +7,7 @@
 ###################################################################
 # Builder image
 
-FROM ubuntu:18.04 
+FROM ubuntu:18.04 as Builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -23,18 +23,24 @@ ADD requirements.txt /
 RUN python3 -m pip install --upgrade pip && \
 	python3 -m pip install -r requirements.txt
 
-
 # Build ObsLn
-
+ADD . /src/obsln
+RUN cd /src/obsln && \
+	python3 ./setup.py install
 
 
 ###################################################################
 # Run time
 
+FROM ubuntu:18.04 
 
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends  \
+	python3
 
-
-
+COPY --from=Builder /usr/lib/python3 /usr/lib/python3
+COPY --from=Builder /usr/lib/python3.6 /usr/lib/python3.6	
+COPY --from=Builder /usr/local/lib/python3.6 /usr/local/lib/python3.6 
 
 
 ENV PYTHONPATH "${PYTHONPATH}:/usr/local/lib/python3.6/dist-packages/"
