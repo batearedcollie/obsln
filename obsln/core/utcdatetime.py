@@ -470,8 +470,6 @@ class UTCDateTime(object):
             kwargs['microsecond'] = int(round(_frac * 1e6))
             args = args[0:5]
  
-        print("args=",args)
- 
         try:  # If a value Error is raised try to allow overflow (see #2222)
             dt = datetime.datetime(*args, **kwargs)
         except ValueError:
