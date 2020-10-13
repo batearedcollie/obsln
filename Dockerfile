@@ -1,8 +1,3 @@
-# Motion Signal Technologies Ltd.
-# All rights reserved
-#
-# The contents of this file are considered proprietary and usage or
-# reproduction without prior authorization is strictly prohibited.
 
 ###################################################################
 # Builder image
