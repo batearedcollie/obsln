@@ -11,3 +11,5 @@ dist
 *.segy
 *.su
 *.seg2
+
+**/__pycache__/*

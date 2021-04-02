@@ -169,7 +169,7 @@ def pack_4byte_ieee(file, data, endian='>'):
     if BYTEORDER != endian:
         data = data.byteswap()
     # Write the file.
-    file.write(data.tostring())
+    file.write(data.tobytes())
 
 
 def pack_1byte_integer(file, data, endian='>'):
