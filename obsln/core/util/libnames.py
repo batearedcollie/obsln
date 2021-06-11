@@ -111,17 +111,20 @@ def _load_cdll4Real(name,useBuild=False):
     :param name: Name of the library to load (e.g. 'mseed').
     :rtype: :class:`ctypes.CDLL`
     """
+    
+
     # our custom defined part of the extension file name
     libname = _get_lib_name(name, add_extension_suffix=True)
-    
-    if useBuild==True:
+
+    if useBuild==True: 
         libdir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,os.pardir,
-                              'build/lib.linux-x86_64-3.6')    
+                              'build/lib.linux-x86_64-3.8/obsln/lib/')  
     else:
         libdir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,'lib')        
 
+
     libpath = os.path.join(libdir, libname)
-    
+
     # resolve parent directory '../' for windows
     libpath = os.path.normpath(libpath)
     libpath = os.path.abspath(libpath)

@@ -2,7 +2,7 @@
 ###################################################################
 # Builder image
 
-FROM ubuntu:18.04 as Builder
+FROM ubuntu:20.04 as Builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -34,13 +34,13 @@ RUN apt-get update && \
 	python3
 
 COPY --from=Builder /usr/lib/python3 /usr/lib/python3
-COPY --from=Builder /usr/lib/python3.6 /usr/lib/python3.6	
-COPY --from=Builder /usr/local/lib/python3.6 /usr/local/lib/python3.6 
+COPY --from=Builder /usr/lib/python3.8 /usr/lib/python3.8	
+COPY --from=Builder /usr/local/lib/python3.8 /usr/local/lib/python3.8 
 
 
-ENV PYTHONPATH "${PYTHONPATH}:/usr/local/lib/python3.6/dist-packages/"
-ENV PYTHONPATH "${PYTHONPATH}:/usr/local/lib/python3.6/site-packages/"
-ENV LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/usr/local/lib/:/usr/local/lib/python3.6/dist-packages/:/usr/local/lib/python3.6/site-packages/"
+ENV PYTHONPATH "${PYTHONPATH}:/usr/local/lib/python3.8/dist-packages/"
+ENV PYTHONPATH "${PYTHONPATH}:/usr/local/lib/python3.8/site-packages/"
+ENV LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/usr/local/lib/:/usr/local/lib/python3.8/dist-packages/:/usr/local/lib/python3.8/site-packages/"
 
 
 ENTRYPOINT ["/bin/bash"]

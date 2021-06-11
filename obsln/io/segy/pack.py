@@ -123,7 +123,8 @@ def pack_4byte_ibm(file, data, endian='>'):
     new_data.dtype = np.uint32
     new_data[zeros] = 0
     # Write to file.
-    file.write(new_data.tostring())
+    #file.write(new_data.tostring())
+    file.write(new_data.tobytes())
 
 
 def pack_4byte_integer(file, data, endian='>'):
