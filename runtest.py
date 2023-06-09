@@ -67,8 +67,6 @@ class Test1(unittest.TestCase):
                          ,
                          "Test fail")
     
-    
-    
     def testStream(self):
     
         print("\n******************\ntestStream\n******************\n")
@@ -95,7 +93,7 @@ class Test1(unittest.TestCase):
     
         print("\nGaps:\n")
         st.print_gaps()
-        
+    
     def testSEGY(self):
     
         print("\n******************\ntestSEGY\n******************\n")
@@ -104,36 +102,36 @@ class Test1(unittest.TestCase):
         from obsln import Stream
         from obsln import Trace
         import numpy as np
-        
+    
         st = Stream()
         for ii in range(0,10):
             tt = np.linspace(0,2,501)
             ff = np.sin(2*np.pi*40*tt,dtype=np.float32)*(ii+1)
             trc = Trace(data=ff,header={"sampling_rate":250,"station":"stn"+str(ii)})
             st.append(trc)
-        
+    
         # Write as SEGY
         from obsln.io.segy.core import _write_segy
         _write_segy(st,"test.sgy")
-        
+    
         # Read back in full file - standard read function
         print("\n*******\nRead in stream")
         from obsln import read
         rst = read("test.sgy")
-        
+    
         # Use the generic writer
         rst.write("test2.segy")
-        
+    
         # Read back in headers
         from obsln.io.segy.segy import iread_segy
         for tr in iread_segy("test2.segy"):
             print(tr,np.min(tr.data),np.max(tr.data))
-        
+    
         # Reading to internla SEGY object
         from obsln.io.segy.segy import _read_segy
         segy = _read_segy("test.sgy")
         print("segy=",segy)
-
+    
     def testSU(self):
     
         print("\n******************\ntestSU\n******************\n")

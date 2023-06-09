@@ -13,3 +13,5 @@ dist
 *.seg2
 
 **/__pycache__/*
+
+build-dist-notes.rst

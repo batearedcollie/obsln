@@ -15,9 +15,14 @@ As you will see the much of the code has been shamelessly hacked from ObsPy and 
 
 For full ObsPy functionality please see the ObsPy project on GitHub [here](https://github.com/obspy)
 
+Installation
+------------
+
+    pip install obsln
+
 
 Building the Docker Image
----------------------
+-------------------------
 
 	docker build -t obsln:latest .
 
