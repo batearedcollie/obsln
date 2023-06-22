@@ -20,7 +20,7 @@ try:
     import numpy 
 except ImportError:
     msg = ("No module named numpy. "
-           "Please install numpy first, it is needed before installing ObsPy.")
+           "Please install numpy first, it is needed before installing ObsLn.")
     raise ImportError(msg)
 
 import fnmatch

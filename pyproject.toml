@@ -1,24 +1,21 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0","numpy>=1.18.2","decorator>=4.4.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "obsln"
-version = "0.0.1"
+version = "0.0.3"
 authors = [
   { name="Example Author", email="author@example.com" },
 ]
-description = "A small example package"
+description = "A very limited range of functionality from ObsPy without many of the dependencies and size"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: OS Independent",
 ]
-
-dependencies = ["decorator>=4.4.2",
-                "numpy>=1.18.2"]
 
 [project.urls]
 "Homepage" = "https://github.com/batearedcollie/obsln"
