@@ -28,8 +28,8 @@ import os
 import platform
 import re
 import warnings
-from distutils import sysconfig
-
+#from distutils import sysconfig
+import sysconfig
 
 def cleanse_pymodule_filename(filename):
     """
@@ -118,7 +118,7 @@ def _load_cdll4Real(name,useBuild=False):
 
     if useBuild==True: 
         libdir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,os.pardir,
-                              'build/lib.linux-x86_64-3.8/obsln/lib/')  
+                              'build/lib.linux-x86_64-3.10/obsln/lib/')  
     else:
         libdir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,'lib')        
 

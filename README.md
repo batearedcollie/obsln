@@ -30,5 +30,4 @@ Building the Docker Image
 Running Examples in Docker Image
 --------------------------------
 
-
 	docker run -v `pwd`:/src/obsln --entrypoint=/bin/bash obsln:latest -c "python3 /src/obsln/runtest.py"
