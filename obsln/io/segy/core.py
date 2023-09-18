@@ -222,7 +222,8 @@ def _read_segy(filename, headonly=False, byteorder=None,
 
 
 def _write_segy(stream, filename, data_encoding=None, byteorder=None,
-                textual_header_encoding=None, **kwargs):  # @UnusedVariable
+                textual_header_encoding=None, ignoreLengthRestriction=False,
+                **kwargs):  # @UnusedVariable
     """
     Writes a SEG Y file from given ObsPy Stream object.
 
@@ -269,7 +270,10 @@ def _write_segy(stream, filename, data_encoding=None, byteorder=None,
         ``'EBCDIC'``, ``'ASCII'`` or ``None``. If it is ``None``, the
         textual_file_header_encoding attribute in the stats.segy dictionary of
         the first Trace is used and if that is not set, ASCII will be used.
-
+    :param ignoreLengthRestriction: disables a check on the written trace length 
+        and replaces it with a warning. Note if you use this you have to set 
+        the headers manually and write the trace length somewhere. 
+    
     This function will automatically set the data encoding field of the binary
     file header so the user does not need to worry about it.
 
@@ -283,11 +287,18 @@ def _write_segy(stream, filename, data_encoding=None, byteorder=None,
     the SEG Y format. Therefore the smallest possible sampling rate is ~ 15.26
     Hz. Please keep that in mind.
     """
+
     for i, tr in enumerate(stream):
-        if len(tr) > MAX_NUMBER_OF_SAMPLES:
-            msg = ('Can not write traces with more than {:d} samples (trace '
-                   'at index {:d}):\n{!s}')
-            raise ValueError(msg.format(MAX_NUMBER_OF_SAMPLES, i, tr))
+        
+        if ignoreLengthRestriction==False:        
+            if len(tr) > MAX_NUMBER_OF_SAMPLES:
+                msg = ('Can not write traces with more than {:d} samples (trace '
+                       'at index {:d}):\n{!s}')
+                raise ValueError(msg.format(MAX_NUMBER_OF_SAMPLES, i, tr))
+        else:            
+            if len(tr) > MAX_NUMBER_OF_SAMPLES: 
+                print("WARNING - writing trace with ",len(tr)," which is greater than the allowed maximum ",MAX_NUMBER_OF_SAMPLES)
+                break
 
     # Some sanity checks to catch invalid arguments/keyword arguments.
     if data_encoding is not None and data_encoding not in VALID_FORMATS:
