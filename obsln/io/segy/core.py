@@ -297,7 +297,7 @@ def _write_segy(stream, filename, data_encoding=None, byteorder=None,
                 raise ValueError(msg.format(MAX_NUMBER_OF_SAMPLES, i, tr))
         else:            
             if len(tr) > MAX_NUMBER_OF_SAMPLES: 
-                print("WARNING - writing trace with ",len(tr)," which is greater than the allowed maximum ",MAX_NUMBER_OF_SAMPLES)
+                print("WARNING - writing trace with ",len(tr)," which is greater than the allowed maximum ",MAX_NUMBER_OF_SAMPLES," for SEGY Rev1")
                 break
 
     # Some sanity checks to catch invalid arguments/keyword arguments.
