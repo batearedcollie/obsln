@@ -91,7 +91,9 @@ class SEGYFile(object):
     Class that internally handles SEG Y files.
     """
     def __init__(self, file=None, endian=None, textual_header_encoding=None,
-                 unpack_headers=False, headonly=False, read_traces=True):
+                 data_encoding=None,force_trace_length=None,
+                 unpack_headers=False, headonly=False, read_traces=True,
+                 ):
         """
         Class that internally handles SEG Y files.
 
@@ -118,6 +120,7 @@ class SEGYFile(object):
             ``True``. The data will be completely ignored if this is set to
             ``False``.
         """
+        
         if file is None:
             self._create_empty_segy_file_object()
             # Set the endianness to big.
@@ -138,12 +141,19 @@ class SEGYFile(object):
             self.endian = ENDIAN[endian]
         # If the textual header encoding is None, autodetection will be used.
         self.textual_header_encoding = textual_header_encoding
+
+        # Data encoding
+        self.data_encoding=data_encoding
+        
         # Read the headers.
-        self._read_headers()
+        self._read_headers(force_trace_length=force_trace_length)
+        
         # Read the actual traces.
         if read_traces:
             [i for i in self._read_traces(
+                force_trace_length=force_trace_length,
                 unpack_headers=unpack_headers, headonly=headonly)]
+
 
     def __str__(self):
         """
@@ -226,18 +236,32 @@ class SEGYFile(object):
         # Finally set it.
         self.textual_file_header = textual_header
 
-    def _read_headers(self):
+    def _read_headers(self,force_trace_length=None):
         """
         Reads the textual and binary file headers starting at the current file
         pointer position.
         """
+        
         # Read the textual header.
         self._read_textual_header()
         # The next 400 bytes are from the Binary File Header.
         binary_file_header = self.file.read(400)
+        
         bfh = SEGYBinaryFileHeader(binary_file_header, self.endian)
         self.binary_file_header = bfh
-        self.data_encoding = self.binary_file_header.data_sample_format_code
+
+        # Handle forced data encoding
+        if self.data_encoding==None:
+            self.data_encoding = self.binary_file_header.data_sample_format_code
+        else:
+            self.binary_file_header.data_sample_format_code=self.data_encoding
+            
+        # Handle forced trace length
+        if force_trace_length!=None:
+            bfh.number_of_data_traces_per_ensemble=force_trace_length
+            bfh.number_of_samples_per_data_trace=force_trace_length
+            bfh.number_of_samples_per_data_trace_for_original_field_recording=force_trace_length
+            
         # If bytes 3506-3506 are not zero, an extended textual header follows
         # which is not supported so far.
         if bfh.number_of_3200_byte_ext_file_header_records_following != 0:
@@ -382,6 +406,7 @@ class SEGYFile(object):
         file.write(textual_header)
 
     def _read_traces(self, unpack_headers=False, headonly=False,
+                     force_trace_length=None,
                      yield_each_trace=False):
         """
         Reads the actual traces starting at the current file pointer position
@@ -406,6 +431,7 @@ class SEGYFile(object):
             longer be collected in ``self.traces`` list if this is set to
             ``True``.
         """
+        
         self.traces = []
         # Determine the filesize once.
         if isinstance(self.file, io.BytesIO):
@@ -420,6 +446,7 @@ class SEGYFile(object):
             # Read and as soon as the trace header is too small abort.
             try:
                 trace = SEGYTrace(self.file, self.data_encoding, self.endian,
+                                  force_trace_length=force_trace_length,
                                   unpack_headers=unpack_headers,
                                   filesize=filesize, headonly=headonly)
                 if yield_each_trace:
@@ -453,6 +480,7 @@ class SEGYBinaryFileHeader(object):
             length, name, _ = item
             string = header[pos: pos + length]
             pos += length
+            
             # Unpack according to different lengths.
             if length == 2:
                 format = ('%sh' % self.endian).encode('ascii', 'strict')
@@ -474,6 +502,7 @@ class SEGYBinaryFileHeader(object):
             # Should not happen.
             else:
                 raise Exception
+
 
     def __str__(self):
         """
@@ -534,6 +563,7 @@ class SEGYTrace(object):
     Convenience class that internally handles a single SEG Y trace.
     """
     def __init__(self, file=None, data_encoding=4, endian='>',
+                 force_trace_length=None,
                  unpack_headers=False, filesize=None, headonly=False):
         """
         Convenience class that internally handles a single SEG Y trace.
@@ -594,9 +624,14 @@ class SEGYTrace(object):
             else:
                 self.filesize = os.fstat(self.file.fileno())[6]
         # Otherwise read the file.
-        self._read_trace(unpack_headers=unpack_headers, headonly=headonly)
+        self._read_trace(
+                    force_trace_length=force_trace_length,
+                    unpack_headers=unpack_headers, headonly=headonly
+                    )
 
-    def _read_trace(self, unpack_headers=False, headonly=False):
+    def _read_trace(self, 
+                    force_trace_length=None,
+                    unpack_headers=False, headonly=False):
         """
         Reads the complete next header starting at the file pointer at
         self.file.
@@ -613,6 +648,8 @@ class SEGYTrace(object):
             Defaults to False.
         """
         trace_header = self.file.read(240)
+
+        
         # Check if it is smaller than 240 byte.
         if len(trace_header) != 240:
             msg = 'The trace header needs to be 240 bytes long'
@@ -620,9 +657,15 @@ class SEGYTrace(object):
         self.header = SEGYTraceHeader(trace_header,
                                       endian=self.endian,
                                       unpack_headers=unpack_headers)
+                
+        # Allow for forced trace length
+        if force_trace_length!=None: 
+            self.header.number_of_samples_in_this_trace=force_trace_length
+
         # The number of samples in the current trace.
         npts = self.header.number_of_samples_in_this_trace
         self.npts = npts
+        
         # Do a sanity check if there is enough data left.
         pos = self.file.tell()
         data_left = self.filesize - pos
@@ -635,6 +678,7 @@ class SEGYTrace(object):
                   byte order or a corrupt file.
                   """.strip()
             raise SEGYTraceReadingError(msg)
+        
         if headonly:
             # skip reading the data, but still advance the file
             self.file.seek(data_needed, 1)
@@ -654,8 +698,11 @@ class SEGYTrace(object):
         If endian or data_encoding is set, these values will be enforced.
         Otherwise use the values of the SEGYTrace object.
         """
+
         # Set the data length in the header before writing it.
-        self.header.number_of_samples_in_this_trace = len(self.data)
+        #   but only if it is not already set
+        if self.header.number_of_samples_in_this_trace==0:
+            self.header.number_of_samples_in_this_trace = len(self.data)
 
         # Write the header.
         self.header.write(file, endian=endian)
@@ -845,7 +892,9 @@ class SEGYTraceHeader(object):
         if endian is None:
             endian = self.endian
         for item in TRACE_HEADER_FORMAT:
+
             length, name, special_format, _ = item
+            
             # Use special format if necessary.
             if special_format:
                 format = ('%s%s' % (endian,
@@ -919,8 +968,11 @@ class SEGYTraceHeader(object):
             setattr(self, field[1], 0)
 
 
-def _read_segy(file, endian=None, textual_header_encoding=None,
-               unpack_headers=False, headonly=False):
+def _read_segy(file, endian=None, 
+               textual_header_encoding=None,
+               data_encoding=None,force_trace_length=None,
+               unpack_headers=False, 
+               headonly=False):
     """
     Reads a SEG Y file and returns a SEGYFile object.
 
@@ -944,22 +996,27 @@ def _read_segy(file, endian=None, textual_header_encoding=None,
         read and unpacked. Has a huge impact on memory usage. Data will not be
         unpackable on-the-fly after reading the file. Defaults to False.
     """
+    
     # Open the file if it is not a file like object.
     if not hasattr(file, 'read') or not hasattr(file, 'tell') or not \
             hasattr(file, 'seek'):
         with open(file, 'rb') as open_file:
             return _internal_read_segy(
                 open_file, endian=endian,
+                data_encoding=data_encoding,force_trace_length=force_trace_length,
                 textual_header_encoding=textual_header_encoding,
                 unpack_headers=unpack_headers, headonly=headonly)
     # Otherwise just read it.
+
     return _internal_read_segy(file, endian=endian,
                                textual_header_encoding=textual_header_encoding,
+                               data_encoding=data_encoding,force_trace_length=force_trace_length,
                                unpack_headers=unpack_headers,
                                headonly=headonly)
 
 
 def _internal_read_segy(file, endian=None, textual_header_encoding=None,
+                        data_encoding=None,force_trace_length=None,
                         unpack_headers=False, headonly=False):
     """
     Reads on open file object and returns a SEGYFile object.
@@ -983,8 +1040,10 @@ def _internal_read_segy(file, endian=None, textual_header_encoding=None,
         read and unpacked. Has a huge impact on memory usage. Data will not be
         unpackable on-the-fly after reading the file. Defaults to False.
     """
+    
     return SEGYFile(file, endian=endian,
                     textual_header_encoding=textual_header_encoding,
+                    data_encoding=data_encoding,force_trace_length=force_trace_length,
                     unpack_headers=unpack_headers, headonly=headonly)
 
 

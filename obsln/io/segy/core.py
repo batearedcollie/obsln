@@ -141,6 +141,7 @@ def _is_segy(filename):
 
 def _read_segy(filename, headonly=False, byteorder=None,
                textual_header_encoding=None, unpack_trace_headers=False,
+               data_encoding=None,force_trace_length=None,
                **kwargs):  # @UnusedVariable
     """
     Reads a SEG Y file and returns an ObsPy Stream object.
@@ -182,11 +183,17 @@ def _read_segy(filename, headonly=False, byteorder=None,
     1 Trace(s) in Stream:
     Seq. No. in line:    1 | 2009-06-22T14:47:37.000000Z - ... 2001 samples
     """
+
+    
     # Read file to the internal segy representation.
     segy_object = _read_segyrev1(
         filename, endian=byteorder,
         textual_header_encoding=textual_header_encoding,
+        
+        data_encoding=data_encoding,force_trace_length=force_trace_length,
+        
         unpack_headers=unpack_trace_headers)
+
     # Create the stream object.
     stream = Stream()
     # SEGY has several file headers that apply to all traces. They will be
@@ -287,7 +294,7 @@ def _write_segy(stream, filename, data_encoding=None, byteorder=None,
     the SEG Y format. Therefore the smallest possible sampling rate is ~ 15.26
     Hz. Please keep that in mind.
     """
-
+    
     for i, tr in enumerate(stream):
         
         if ignoreLengthRestriction==False:        
@@ -296,9 +303,10 @@ def _write_segy(stream, filename, data_encoding=None, byteorder=None,
                        'at index {:d}):\n{!s}')
                 raise ValueError(msg.format(MAX_NUMBER_OF_SAMPLES, i, tr))
         else:            
-            if len(tr) > MAX_NUMBER_OF_SAMPLES: 
-                print("WARNING - writing trace with ",len(tr)," which is greater than the allowed maximum ",MAX_NUMBER_OF_SAMPLES," for SEGY Rev1")
-                break
+            # if len(tr) > MAX_NUMBER_OF_SAMPLES: 
+            #     print("WARNING - writing trace with ",len(tr)," which is greater than the allowed maximum ",MAX_NUMBER_OF_SAMPLES," for SEGY Rev1")
+            #     break
+            pass
 
     # Some sanity checks to catch invalid arguments/keyword arguments.
     if data_encoding is not None and data_encoding not in VALID_FORMATS:
@@ -622,6 +630,8 @@ def _write_su(stream, filename, byteorder=None, **kwargs):  # @UnusedVariable
                 setattr(new_trace_header, item,
                         getattr(this_trace_header, item))
         starttime = trace.stats.starttime
+        
+        
         # Set some special attributes, e.g. the sample count and other stuff.
         new_trace_header.number_of_samples_in_this_trace = trace.stats.npts
         new_trace_header.sample_interval_in_ms_for_this_trace = \
