@@ -144,10 +144,10 @@ class SEGYFile(object):
 
         # Data encoding
         self.data_encoding=data_encoding
-        
+
         # Read the headers.
         self._read_headers(force_trace_length=force_trace_length)
-        
+
         # Read the actual traces.
         if read_traces:
             [i for i in self._read_traces(
@@ -631,7 +631,8 @@ class SEGYTrace(object):
 
     def _read_trace(self, 
                     force_trace_length=None,
-                    unpack_headers=False, headonly=False):
+                    unpack_headers=False, 
+                    headonly=False):
         """
         Reads the complete next header starting at the file pointer at
         self.file.
@@ -647,9 +648,9 @@ class SEGYTrace(object):
             will not be unpackable on-the-fly after reading the file.
             Defaults to False.
         """
+
         trace_header = self.file.read(240)
 
-        
         # Check if it is smaller than 240 byte.
         if len(trace_header) != 240:
             msg = 'The trace header needs to be 240 bytes long'
@@ -657,15 +658,22 @@ class SEGYTrace(object):
         self.header = SEGYTraceHeader(trace_header,
                                       endian=self.endian,
                                       unpack_headers=unpack_headers)
-                
+
+
         # Allow for forced trace length
         if force_trace_length!=None: 
             self.header.number_of_samples_in_this_trace=force_trace_length
+        else:
+            # If the header format defines a 'number_of_samples_in_this_trace_override'
+            #  use this key to override the trace length. Allowing you to read in traces longer
+            #  than the SEGY limit 
+            if "number_of_samples_in_this_trace_override" in TRACE_HEADER_KEYS:
+                self.header.number_of_samples_in_this_trace=self.header.number_of_samples_in_this_trace_override
 
         # The number of samples in the current trace.
         npts = self.header.number_of_samples_in_this_trace
         self.npts = npts
-        
+
         # Do a sanity check if there is enough data left.
         pos = self.file.tell()
         data_left = self.filesize - pos
@@ -853,6 +861,7 @@ class SEGYTraceHeader(object):
             usage and the performance. They can be unpacked on-the-fly after
             being read. Defaults to False.
         """
+
         self.endian = endian
         if header is None:
             self._create_empty_trace_header()
@@ -863,9 +872,10 @@ class SEGYTraceHeader(object):
             raise SEGYTraceHeaderTooSmallError(msg)
         # Either unpack the header or just append the unpacked header. This is
         # much faster and can later be unpacked on the fly.
+
         if not unpack_headers:
             self.unpacked_header = header
-        else:
+        else:            
             self.unpacked_header = None
             self._read_trace_header(header)
 
@@ -874,6 +884,7 @@ class SEGYTraceHeader(object):
         Reads the 240 byte long header and unpacks all values into
         corresponding class attributes.
         """
+                
         # Set the start position.
         pos = 0
         # Loop over all items in the TRACE_HEADER_FORMAT list which is supposed
