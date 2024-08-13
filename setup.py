@@ -11,10 +11,24 @@ ObsLn - Provides some of the basic functionality from ObsPy without many of the 
 
 '''
 
-try:
-    import setuptools
-except ImportError:
-    pass
+
+
+
+import fnmatch
+import glob
+import inspect
+import os
+import sys
+import platform
+
+
+import os
+import subprocess
+import setuptools
+from setuptools import setup, find_packages, Extension
+from setuptools.command.build_ext import build_ext as _build_ext
+from setuptools.command.install import install as _install
+from shutil import which
 
 try:
     import numpy 
@@ -23,20 +37,14 @@ except ImportError:
            "Please install numpy first, it is needed before installing ObsLn.")
     raise ImportError(msg)
 
-import fnmatch
-import glob
-import inspect
-import os
-import sys
-import platform
-from distutils.util import change_root
+def exec_command(cmd):
+    result = subprocess.run(cmd, shell=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"Command failed: {cmd}")
 
-from numpy.distutils.core import setup
-from numpy.distutils.ccompiler import get_default_compiler
-from numpy.distutils.command.build import build
-from numpy.distutils.command.install import install
-from numpy.distutils.exec_command import exec_command, find_executable
-from numpy.distutils.misc_util import Configuration
+def find_executable(executable):
+    return which(executable)
+
 
 SETUP_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(
     inspect.currentframe())))
@@ -484,38 +492,38 @@ def find_packages():
 
 # adds --with-system-libs command-line option if possible
 
-def add_features():
-    if 'setuptools' not in sys.modules or not hasattr(setuptools, 'Feature'):
-        return {}
-
-    class ExternalLibFeature(setuptools.Feature):
-        def __init__(self, *args, **kwargs):
-            self.name = kwargs['name']
-            setuptools.Feature.__init__(self, *args, **kwargs)
-
-        def include_in(self, dist):
-            globals()[self.name] = True
-
-        def exclude_from(self, dist):
-            globals()[self.name] = False
-
-    return {
-        'system-libs': setuptools.Feature(
-            'use of system C libraries',
-            standard=False,
-            require_features=('system-evalresp', 'system-libmseed')
-        ),
-        'system-evalresp': ExternalLibFeature(
-            'use of system evalresp library',
-            standard=False,
-            name='EXTERNAL_EVALRESP'
-        ),
-        'system-libmseed': ExternalLibFeature(
-            'use of system libmseed library',
-            standard=False,
-            name='EXTERNAL_LIBMSEED'
-        )
-    }
+# def add_features():
+#     if 'setuptools' not in sys.modules or not hasattr(setuptools, 'Feature'):
+#         return {}
+#
+#     class ExternalLibFeature(setuptools.Feature):
+#         def __init__(self, *args, **kwargs):
+#             self.name = kwargs['name']
+#             setuptools.Feature.__init__(self, *args, **kwargs)
+#
+#         def include_in(self, dist):
+#             globals()[self.name] = True
+#
+#         def exclude_from(self, dist):
+#             globals()[self.name] = False
+#
+#     return {
+#         'system-libs': setuptools.Feature(
+#             'use of system C libraries',
+#             standard=False,
+#             require_features=('system-evalresp', 'system-libmseed')
+#         ),
+#         'system-evalresp': ExternalLibFeature(
+#             'use of system evalresp library',
+#             standard=False,
+#             name='EXTERNAL_EVALRESP'
+#         ),
+#         'system-libmseed': ExternalLibFeature(
+#             'use of system libmseed library',
+#             standard=False,
+#             name='EXTERNAL_LIBMSEED'
+#         )
+#     }
 
 def add_data_files(config):
     """
@@ -548,13 +556,13 @@ def add_data_files(config):
                     os.path.relpath(os.path.join(root, filename),
                                     SETUP_DIRECTORY))
 
-def configuration(parent_package="", top_path=None):
-    """
-    Config function mainly used to compile C code.
-    """
-    config = Configuration("", parent_package, top_path)
-
-    # GSE2
+# def configuration(parent_package="", top_path=None):
+#     """
+#     Config function mainly used to compile C code.
+#     """
+#     config = Configuration("", parent_package, top_path)
+#
+#     # GSE2
 #     path = os.path.join("obsln", "io", "gse2", "src", "GSE_UTI")
 #     files = [os.path.join(path, "gse_functions.c")]
 #     # compiler specific options
@@ -564,84 +572,100 @@ def configuration(parent_package="", top_path=None):
 #         kwargs['export_symbols'] = export_symbols(path, 'gse_functions.def')
 #     config.add_extension(_get_lib_name("gse2", add_extension_suffix=False),
 #                          files, **kwargs)
-
-    # LIBMSEED
-#     path = os.path.join("obsln", "io", "mseed", "src")
-#     files = [os.path.join(path, "obspy-readbuffer.c")]
-#     if not EXTERNAL_LIBMSEED:
-#         files += glob.glob(os.path.join(path, "libmseed", "*.c"))
-#     # compiler specific options
-#     kwargs = {}
-#     if IS_MSVC:
-#         # needed by libmseed lmplatform.h
-#         kwargs['define_macros'] = [('WIN32', '1')]
-#         # get export symbols
-#         kwargs['export_symbols'] = \
-#             export_symbols(path, 'libmseed', 'libmseed.def')
-#         kwargs['export_symbols'] += \
-#             export_symbols(path, 'obspy-readbuffer.def')
-#     if EXTERNAL_LIBMSEED:
-#         kwargs['libraries'] = ['mseed']
-#     config.add_extension(_get_lib_name("mseed", add_extension_suffix=False),
-#                          files, **kwargs)
-
-    # SEGY
-    path = os.path.join("obsln", "io", "segy", "src")
-    files = [os.path.join(path, "ibm2ieee.c")]
-    # compiler specific options
-    kwargs = {}
-    if IS_MSVC:
-        # get export symbols
-        kwargs['export_symbols'] = export_symbols(path, 'libsegy.def')
-    config.add_extension(_get_lib_name("segy", add_extension_suffix=False),
-                         files, **kwargs)
-
-    # SIGNAL
-#     path = os.path.join("obspy", "signal", "src")
-#     files = glob.glob(os.path.join(path, "*.c"))
+#
+#     # LIBMSEED
+# #     path = os.path.join("obsln", "io", "mseed", "src")
+# #     files = [os.path.join(path, "obspy-readbuffer.c")]
+# #     if not EXTERNAL_LIBMSEED:
+# #         files += glob.glob(os.path.join(path, "libmseed", "*.c"))
+# #     # compiler specific options
+# #     kwargs = {}
+# #     if IS_MSVC:
+# #         # needed by libmseed lmplatform.h
+# #         kwargs['define_macros'] = [('WIN32', '1')]
+# #         # get export symbols
+# #         kwargs['export_symbols'] = \
+# #             export_symbols(path, 'libmseed', 'libmseed.def')
+# #         kwargs['export_symbols'] += \
+# #             export_symbols(path, 'obspy-readbuffer.def')
+# #     if EXTERNAL_LIBMSEED:
+# #         kwargs['libraries'] = ['mseed']
+# #     config.add_extension(_get_lib_name("mseed", add_extension_suffix=False),
+# #                          files, **kwargs)
+#
+#     # SEGY
+#     path = os.path.join("obsln", "io", "segy", "src")
+#     files = [os.path.join(path, "ibm2ieee.c")]
 #     # compiler specific options
 #     kwargs = {}
 #     if IS_MSVC:
 #         # get export symbols
-#         kwargs['export_symbols'] = export_symbols(path, 'libsignal.def')
-#     config.add_extension(_get_lib_name("signal", add_extension_suffix=False),
+#         kwargs['export_symbols'] = export_symbols(path, 'libsegy.def')
+#     config.add_extension(_get_lib_name("segy", add_extension_suffix=False),
 #                          files, **kwargs)
-
-    # EVALRESP
-#     path = os.path.join("obspy", "signal", "src")
-#     if EXTERNAL_EVALRESP:
-#         files = glob.glob(os.path.join(path, "evalresp", "_obspy*.c"))
-#     else:
-#         files = glob.glob(os.path.join(path, "evalresp", "*.c"))
-#     # compiler specific options
-#     kwargs = {}
-#     if IS_MSVC:
-#         # needed by evalresp evresp.h
-#         kwargs['define_macros'] = [('WIN32', '1')]
-#         # get export symbols
-#         kwargs['export_symbols'] = export_symbols(path, 'libevresp.def')
-#     if EXTERNAL_EVALRESP:
-#         kwargs['libraries'] = ['evresp']
-#     config.add_extension(_get_lib_name("evresp", add_extension_suffix=False),
-#                          files, **kwargs)
-
-    # TAU
-#     path = os.path.join("obsln", "taup", "src")
-#     files = [os.path.join(path, "inner_tau_loops.c")]
-#     # compiler specific options
-#     kwargs = {}
-#     if IS_MSVC:
-#         # get export symbols
-#         kwargs['export_symbols'] = export_symbols(path, 'libtau.def')
-#     config.add_extension(_get_lib_name("tau", add_extension_suffix=False),
-#                          files, **kwargs)
-
-    add_data_files(config)
-
-    return config
+#
+# #     # SIGNAL
+# #     path = os.path.join("obspy", "signal", "src")
+# #     files = glob.glob(os.path.join(path, "*.c"))
+# #     # compiler specific options
+# #     kwargs = {}
+# #     if IS_MSVC:
+# #         # get export symbols
+# #         kwargs['export_symbols'] = export_symbols(path, 'libsignal.def')
+# #     config.add_extension(_get_lib_name("signal", add_extension_suffix=False),
+# #                          files, **kwargs)
+#
+#     # EVALRESP
+# #     path = os.path.join("obspy", "signal", "src")
+# #     if EXTERNAL_EVALRESP:
+# #         files = glob.glob(os.path.join(path, "evalresp", "_obspy*.c"))
+# #     else:
+# #         files = glob.glob(os.path.join(path, "evalresp", "*.c"))
+# #     # compiler specific options
+# #     kwargs = {}
+# #     if IS_MSVC:
+# #         # needed by evalresp evresp.h
+# #         kwargs['define_macros'] = [('WIN32', '1')]
+# #         # get export symbols
+# #         kwargs['export_symbols'] = export_symbols(path, 'libevresp.def')
+# #     if EXTERNAL_EVALRESP:
+# #         kwargs['libraries'] = ['evresp']
+# #     config.add_extension(_get_lib_name("evresp", add_extension_suffix=False),
+# #                          files, **kwargs)
+#
+#     # TAU
+# #     path = os.path.join("obsln", "taup", "src")
+# #     files = [os.path.join(path, "inner_tau_loops.c")]
+# #     # compiler specific options
+# #     kwargs = {}
+# #     if IS_MSVC:
+# #         # get export symbols
+# #         kwargs['export_symbols'] = export_symbols(path, 'libtau.def')
+# #     config.add_extension(_get_lib_name("tau", add_extension_suffix=False),
+# #                          files, **kwargs)
+#
+#     add_data_files(config)
+#
+#     return config
 
 def setupPackage():
-    
+
+
+
+
+    extensions = [
+        #Extension(
+        #    name=_get_lib_name("segy", add_extension_suffix=False),
+        #    sources=[os.path.join( os.path.join("obsln", "io", "gse2", "src","GSE_UTI"), "gse_functions.c")],
+        #),
+        
+        Extension(
+            name=_get_lib_name("segy", add_extension_suffix=False),
+            sources=[os.path.join( os.path.join("obsln", "io", "segy", "src"), "ibm2ieee.c")],
+        )
+    ]
+
+ 
     setup(
         name='obsln',
         description=DOCSTRING[1],
@@ -653,7 +677,7 @@ def setupPackage():
         zip_safe=False,
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRAS_REQUIRE,
-        features=add_features(),
+        # features=add_features(),
 #         # this is needed for "easy_install obspy==dev"
 #         download_url=("https://github.com/obspy/obspy/zipball/master"
 #                       "#egg=obspy=dev"),
@@ -664,7 +688,15 @@ def setupPackage():
 #             'build_man': Help2ManBuild,
 #             'install_man': Help2ManInstall
 #         },
-        configuration=configuration
+
+        ##
+        ## TODO - start here working out what configuration should be 
+        ##
+
+        #configuration=configuration
+        
+        ext_modules=extensions,
+        
         )  
 
 

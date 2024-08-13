@@ -113,20 +113,20 @@ class Test1(unittest.TestCase):
         # Write as SEGY
         from obsln.io.segy.core import _write_segy
         _write_segy(st,"test.sgy")
-    
+        
         # Read back in full file - standard read function
         print("\n*******\nRead in stream")
         from obsln import read
         rst = read("test.sgy")
-    
+        
         # Use the generic writer
         rst.write("test2.segy")
-    
+        
         # Read back in headers
         from obsln.io.segy.segy import iread_segy
         for tr in iread_segy("test2.segy"):
             print(tr,np.min(tr.data),np.max(tr.data))
-    
+        
         # Reading to internla SEGY object
         from obsln.io.segy.segy import _read_segy
         segy = _read_segy("test.sgy")

@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0","numpy>=1.18.2","decorator>=4.4.2"]
+requires = ["setuptools>=72.1","numpy>=2.0.1","decorator>=4.4.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "obsln"
-version = "0.0.7"
+version = "0.0.8"
 authors = [
   { name="BatearedCollie", email="batearedcolie@gmail.com" },
 ]

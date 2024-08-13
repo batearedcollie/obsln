@@ -37,11 +37,34 @@ import unicodedata
 from collections import OrderedDict
  
 # import numpy as np
-import pkg_resources
+#import pkg_resources
 # import requests
 # from future.utils import native_str
-from pkg_resources import get_entry_info, iter_entry_points
- 
+#from pkg_resources import get_entry_info, iter_entry_points
+
+import importlib.metadata
+
+def get_entry_info(group, name):
+    eps = importlib.metadata.entry_points()
+    if group in eps:
+        for ep in eps[group]:
+            if ep.name == name:
+                return ep
+    return None
+
+def iter_entry_points(group,name=None):
+    eps = importlib.metadata.entry_points()    
+    out =[]
+    for xx in eps:
+        if xx.group==group:
+            if name==None:
+                out.append(xx)
+            else:
+                if xx.name==name: out.append(xx)
+
+    return out
+
+
 from obsln.core.util.misc import to_int_or_zero, buffered_load_entry_point
 
 
@@ -373,8 +396,9 @@ def get_dependency_version(package_name, raw_string=False):
         0.
     """
     try:
-        version_string = pkg_resources.get_distribution(package_name).version
-    except pkg_resources.DistributionNotFound:
+        #version_string = pkg_resources.get_distribution(package_name).version
+        version_string = importlib.metadata.version(package_name)
+    except importlib.metadata.PackageNotFoundError:
         return []
     if raw_string:
         return version_string
@@ -448,17 +472,19 @@ def _read_from_plugin(plugin_type, filename, format=None, **kwargs):
             raise FileNotFoundError(msg)
 
 
+
     eps = ENTRY_POINTS[plugin_type]
-        
+  
     # get format entry point
     format_ep = None
     if not format:
         # auto detect format - go through all known formats in given sort order
         for format_ep in eps.values():
+            
             # search isFormat for given entry point
             is_format = buffered_load_entry_point(
-                format_ep.dist.key,
-#                 'obspy.plugin.%s.%s' % (plugin_type, format_ep.name),
+                #format_ep.dist.key,     # Got rid of dist argument...
+                #'obspy.plugin.%s.%s' % (plugin_type, format_ep.name),
                 'obsln.plugin.%s.%s' % (plugin_type, format_ep.name),
                 'isFormat')
             # If it is a file-like object, store the position and restore it
@@ -488,7 +514,7 @@ def _read_from_plugin(plugin_type, filename, format=None, **kwargs):
     try:
         # search readFormat for given entry point
         read_format = buffered_load_entry_point(
-            format_ep.dist.key,
+            #format_ep.dist.key,         # Got rid of dist argument...
 #             'obspy.plugin.%s.%s' % (plugin_type, format_ep.name),
             'obsln.plugin.%s.%s' % (plugin_type, format_ep.name),
             'readFormat')

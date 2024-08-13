@@ -29,11 +29,28 @@ import sys
 # import tempfile
 # import warnings
 # from subprocess import STDOUT, CalledProcessError, check_output
- 
+import importlib.metadata
  
 import numpy as np
-from pkg_resources import load_entry_point
- 
+#from pkg_resources import load_entry_point
+
+def load_entry_point(
+                    #dist_name,   # Got rid of dist argument....
+                     group, name):
+    # Get the entry points for the specified distribution, group, and name
+    eps = importlib.metadata.entry_points()
+    
+
+    for ep in eps.select(group=group):
+        # Got rid of dist argument....
+        #if ep.name == name and ep.dist.name == dist_name:
+        if ep.name == name: 
+            return ep.load()
+
+    raise ValueError(f"Entry point {name} not found in group {group} for distribution {dist_name}")
+
+
+
 WIN32 = sys.platform.startswith('win32')
  
 # The following dictionary maps the first character of the channel_id to the
@@ -639,20 +656,35 @@ def get_window_times(starttime, endtime, window_length, step, offset,
 #             cache.clear()
 # 
  
-def buffered_load_entry_point(dist, group, name):
+# def buffered_load_entry_point(dist, group, name):
+#     """
+#     Return `name` entry point of `group` for `dist` or raise ImportError
+#     :type dist: str
+#     :param dist: The name of the distribution containing the entry point.
+#     :type group: str
+#     :param group: The name of the group containing the entry point.
+#     :type name: str
+#     :param name: The name of the entry point.
+#     :return: The loaded entry point
+#     """
+#     hash_str = '/'.join([dist, group, name])
+#     if hash_str not in _ENTRY_POINT_CACHE:
+#         _ENTRY_POINT_CACHE[hash_str] = load_entry_point(dist, group, name)
+#     return _ENTRY_POINT_CACHE[hash_str]
+
+def buffered_load_entry_point(group, name):
     """
     Return `name` entry point of `group` for `dist` or raise ImportError
-    :type dist: str
-    :param dist: The name of the distribution containing the entry point.
     :type group: str
     :param group: The name of the group containing the entry point.
     :type name: str
     :param name: The name of the entry point.
     :return: The loaded entry point
     """
-    hash_str = '/'.join([dist, group, name])
+    hash_str = '/'.join([group, name])
     if hash_str not in _ENTRY_POINT_CACHE:
-        _ENTRY_POINT_CACHE[hash_str] = load_entry_point(dist, group, name)
+        #_ENTRY_POINT_CACHE[hash_str] = load_entry_point(dist, group, name)
+        _ENTRY_POINT_CACHE[hash_str] = load_entry_point( group, name)
     return _ENTRY_POINT_CACHE[hash_str]
  
  

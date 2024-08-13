@@ -9,7 +9,6 @@
 # reproduction without prior authorization is strictly prohibited.  
 #
 
+setuptools>=72.1.0
 decorator>=4.4.2
-numpy>=1.18.2
-
-#
+numpy>=2.0.1
